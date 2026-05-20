@@ -1,0 +1,252 @@
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { PRODUCTS } from '../data/products';
+import ProductCard from '../components/ProductCard';
+import Sidebar from '../components/Sidebar';
+import { SearchX, RotateCcw } from 'lucide-react';
+
+export default function Products() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Filters States
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedColor, setSelectedColor] = useState('All');
+  const [selectedSize, setSelectedSize] = useState('All');
+  const [maxPrice, setMaxPrice] = useState(3500);
+  const [sortBy, setSortBy] = useState('featured');
+
+  // Synchronize initial filters with URL parameters
+  useEffect(() => {
+    const catParam = searchParams.get('category');
+    const searchParam = searchParams.get('search');
+
+    if (catParam) {
+      setSelectedCategory(catParam);
+    }
+    if (searchParam) {
+      setSearchTerm(searchParam);
+    }
+  }, [searchParams]);
+
+  // Static list of possible colors to filter by
+  const AVAILABLE_COLORS = [
+    { name: 'Black / Onyx', matches: ['black', 'onyx', 'charcoal', 'dark'] },
+    { name: 'White / Cream', matches: ['white', 'cream', 'bone', 'optic', 'clear', 'soft white', 'pristine'] },
+    { name: 'Gray / Silver', matches: ['gray', 'grey', 'silver', 'slate', 'brushed', 'metal'] },
+    { name: 'Blue / Navy', matches: ['blue', 'navy', 'mist'] },
+    { name: 'Tan / Sand / Oak', matches: ['tan', 'sand', 'beige', 'brown', 'cognac', 'oak', 'oatmeal'] }
+  ];
+
+  // Static list of possible sizes
+  const AVAILABLE_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'One Size', 'Standard'];
+
+  // Categories list
+  const CATEGORIES = ['All', 'Apparel', 'Accessories', 'Home', 'Footwear', 'Tech'];
+
+  // Clear all states
+  const handleClearAllFilters = () => {
+    setSearchTerm('');
+    setSelectedCategory('All');
+    setSelectedColor('All');
+    setSelectedSize('All');
+    setMaxPrice(3500);
+    setSortBy('featured');
+    setSearchParams({}); // Clear query params
+  };
+
+  // Perform dynamic filtering and sorting combined inside useMemo
+  const filteredProducts = useMemo(() => {
+    let result = [...PRODUCTS];
+
+    // 1. Search Query
+    if (searchTerm.trim() !== '') {
+      const query = searchTerm.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query) ||
+          p.description.toLowerCase().includes(query) ||
+          p.category.toLowerCase().includes(query)
+      );
+    }
+
+    // 2. Category Filter
+    if (selectedCategory !== 'All') {
+      result = result.filter(
+        (p) => p.category.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
+
+    // 3. Color Filter
+    if (selectedColor !== 'All') {
+      const colorQueryGroup = AVAILABLE_COLORS.find(c => c.name === selectedColor);
+      if (colorQueryGroup) {
+        result = result.filter((p) => {
+          return p.colors?.some((c) =>
+            colorQueryGroup.matches.some((m) => c.name.toLowerCase().includes(m))
+          );
+        });
+      }
+    }
+
+    // 4. Size Filter
+    if (selectedSize !== 'All') {
+      result = result.filter((p) =>
+        p.sizes?.some((s) => s.toLowerCase() === selectedSize.toLowerCase())
+      );
+    }
+
+    // 5. Price Filter
+    result = result.filter((p) => p.price <= maxPrice);
+
+    // 6. Sorting Logic
+    if (sortBy === 'price-asc') {
+      result.sort((a, b) => a.price - b.price);
+    } else if (sortBy === 'price-desc') {
+      result.sort((a, b) => b.price - a.price);
+    } else if (sortBy === 'rating') {
+      result.sort((a, b) => b.rating - a.rating);
+    } else {
+      // 'featured' - preserve defined order or highlight isFeatured/isTrending
+      result.sort((a, b) => {
+        const scoreA = (a.isFeatured ? 2 : 0) + (a.isTrending ? 1 : 0);
+        const scoreB = (b.isFeatured ? 2 : 0) + (b.isTrending ? 1 : 0);
+        return scoreB - scoreA;
+      });
+    }
+
+    return result;
+  }, [searchTerm, selectedCategory, selectedColor, selectedSize, maxPrice, sortBy]);
+
+  // Active filter count calculation
+  const activeFiltersCount = [
+    searchTerm !== '',
+    selectedCategory !== 'All',
+    selectedColor !== 'All',
+    selectedSize !== 'All',
+    maxPrice < 3500
+  ].filter(Boolean).length;
+
+  return (
+    <div className="max-w-[1280px] mx-auto px-6 py-6 font-sans">
+      {/* Editorial Header */}
+      <div className="mb-8 border-b border-slate-200 pb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+        <div>
+          <span className="text-xs uppercase tracking-widest text-slate-405 font-bold">LUMINA CATALOGUE</span>
+          <h1 className="text-3xl font-extrabold text-[#0b1c30] mt-1">Shop Modern Essentials</h1>
+          <p className="text-xs text-slate-500 mt-2">
+            Refined collection of structural tailored apparel, sculptural home artifacts, and polished technical accessories.
+          </p>
+        </div>
+        
+        {/* Sort Trigger */}
+        <div className="flex items-center gap-2 self-stretch md:self-auto justify-end">
+          <label htmlFor="sort-select" className="text-xs text-slate-400 uppercase tracking-wider font-bold">SortBy:</label>
+          <select
+            id="sort-select"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="bg-white border border-slate-200 text-[#0b1c30] text-xs px-3 py-2 rounded focus:outline-none focus:border-black transition-colors font-semibold cursor-pointer"
+          >
+            <option value="featured">Featured Picks</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="rating">Highest Rated</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* ========= SIDEBAR FILTERS PANEL ========= */}
+        <Sidebar
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          selectedColor={selectedColor}
+          setSelectedColor={setSelectedColor}
+          selectedSize={selectedSize}
+          setSelectedSize={setSelectedSize}
+          maxPrice={maxPrice}
+          setMaxPrice={setMaxPrice}
+          onClear={handleClearAllFilters}
+          activeFiltersCount={activeFiltersCount}
+          CATEGORIES={CATEGORIES}
+          AVAILABLE_COLORS={AVAILABLE_COLORS}
+          AVAILABLE_SIZES={AVAILABLE_SIZES}
+        />
+
+        {/* ========= PRODUCT LISTING GRID ========= */}
+        <div className="lg:col-span-3 space-y-6">
+          {/* Active Chips row banner */}
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-lg border border-slate-200/50 shadow-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">
+                Showing:
+              </span>
+              <span className="text-xs font-bold text-slate-800">
+                {filteredProducts.length} of {PRODUCTS.length} standard items found
+              </span>
+            </div>
+
+            {/* active badges array list */}
+            {activeFiltersCount > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {selectedCategory !== 'All' && (
+                  <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border border-slate-200 font-sans">
+                    {selectedCategory}
+                    <button onClick={() => setSelectedCategory('All')} className="hover:text-black font-semibold ml-1">&times;</button>
+                  </span>
+                )}
+                {selectedColor !== 'All' && (
+                  <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border border-slate-200 font-sans">
+                    Color: {selectedColor}
+                    <button onClick={() => setSelectedColor('All')} className="hover:text-black font-semibold ml-1">&times;</button>
+                  </span>
+                )}
+                {selectedSize !== 'All' && (
+                  <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border border-slate-200 font-sans">
+                    Size: {selectedSize}
+                    <button onClick={() => setSelectedSize('All')} className="hover:text-black font-semibold ml-1">&times;</button>
+                  </span>
+                )}
+                {maxPrice < 3500 && (
+                  <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border border-slate-200 font-sans">
+                    &lt; ${maxPrice}
+                    <button onClick={() => setMaxPrice(3500)} className="hover:text-black font-semibold ml-1">&times;</button>
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Actual items list Grid */}
+          {filteredProducts.length === 0 ? (
+            <div className="h-[400px] bg-white border border-slate-200/50 rounded-lg flex flex-col items-center justify-center p-8 text-center">
+              <SearchX className="text-slate-350 w-16 h-16 stroke-[1.2] mb-4" />
+              <h3 className="text-base font-bold text-slate-800">No products match your parameters</h3>
+              <p className="text-xs text-slate-500 max-w-xs mt-1.5 leading-relaxed font-sans">
+                Adjust or clear filters to locate premium wool coats, architectural accessories, or tech docks.
+              </p>
+              <button
+                onClick={handleClearAllFilters}
+                className="mt-6 bg-black text-white text-xs font-bold tracking-widest uppercase py-3 px-6 hover:bg-slate-800 rounded transition-colors cursor-pointer flex items-center gap-2"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Reset All Filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 animate-in fade-in duration-300">
+              {filteredProducts.map((p) => (
+                <div key={p.id} className="h-full">
+                  <ProductCard product={p} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

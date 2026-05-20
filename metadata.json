@@ -1,0 +1,6 @@
+{
+  "name": "Lumina",
+  "description": "A premium minimalist fashion, lifestyle, and home collections showcase with a complete fluid shopping experience, persistent cart, search filtering, and detailed product screens.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
