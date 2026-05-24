@@ -11,6 +11,8 @@ export default function Products() {
   // Filters States
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedRoom, setSelectedRoom] = useState('All');
+  const [selectedAesthetic, setSelectedAesthetic] = useState('All');
   const [selectedColor, setSelectedColor] = useState('All');
   const [selectedSize, setSelectedSize] = useState('All');
   const [maxPrice, setMaxPrice] = useState(3500);
@@ -20,6 +22,8 @@ export default function Products() {
   useEffect(() => {
     const catParam = searchParams.get('category');
     const searchParam = searchParams.get('search');
+    const roomParam = searchParams.get('room');
+    const aestheticParam = searchParams.get('aesthetic');
 
     if (catParam) {
       setSelectedCategory(catParam);
@@ -27,27 +31,41 @@ export default function Products() {
     if (searchParam) {
       setSearchTerm(searchParam);
     }
+    if (roomParam) {
+      setSelectedRoom(roomParam);
+    }
+    if (aestheticParam) {
+      setSelectedAesthetic(aestheticParam);
+    }
   }, [searchParams]);
 
   // Static list of possible colors to filter by
   const AVAILABLE_COLORS = [
     { name: 'Black / Onyx', matches: ['black', 'onyx', 'charcoal', 'dark'] },
-    { name: 'White / Cream', matches: ['white', 'cream', 'bone', 'optic', 'clear', 'soft white', 'pristine'] },
-    { name: 'Gray / Silver', matches: ['gray', 'grey', 'silver', 'slate', 'brushed', 'metal'] },
-    { name: 'Blue / Navy', matches: ['blue', 'navy', 'mist'] },
-    { name: 'Tan / Sand / Oak', matches: ['tan', 'sand', 'beige', 'brown', 'cognac', 'oak', 'oatmeal'] }
+    { name: 'White / Cream', matches: ['white', 'cream', 'bone', 'optic', 'clear', 'soft white', 'pristine', 'alabaster'] },
+    { name: 'Gray / Silver', matches: ['gray', 'grey', 'silver', 'slate', 'brushed', 'metal', 'steel', 'cement'] },
+    { name: 'Blue / Green', matches: ['blue', 'navy', 'mist', 'green', 'spring'] },
+    { name: 'Wood / Tan / Brass', matches: ['tan', 'sand', 'beige', 'brown', 'cognac', 'oak', 'oatmeal', 'ashwood', 'brass', 'walnut'] }
   ];
 
   // Static list of possible sizes
-  const AVAILABLE_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'One Size', 'Standard'];
+  const AVAILABLE_SIZES = ['Standard', 'Large', 'One Size', 'E26 Standard', 'Medium', '84-inch', '96-inch', '3 Meter', '5 Meter', '6-Seater', '8-Seater', '16x16"', '24x24"', '24-inch', '32-inch'];
 
-  // Categories list
-  const CATEGORIES = ['All', 'Apparel', 'Accessories', 'Home', 'Footwear', 'Tech'];
+  // Modern Categories list
+  const CATEGORIES = ['All', 'Smart Home', 'Lighting', 'Office', 'Dining', 'Small Decor'];
+
+  // Premium Room lists
+  const ROOMS = ['All', 'Bedroom', 'Kitchen', 'Study Room', 'Balcony', 'Gaming Setup', 'Office Space', 'Living Room'];
+
+  // Premium Aesthetic lists
+  const AESTHETICS = ['All', 'Minimalist', 'Scandinavian', 'Japanese Zen', 'Luxury Modern', 'Industrial', 'Bohemian', 'Dark Academia', 'Cozy Bedroom'];
 
   // Clear all states
   const handleClearAllFilters = () => {
     setSearchTerm('');
     setSelectedCategory('All');
+    setSelectedRoom('All');
+    setSelectedAesthetic('All');
     setSelectedColor('All');
     setSelectedSize('All');
     setMaxPrice(3500);
@@ -66,7 +84,9 @@ export default function Products() {
         (p) =>
           p.name.toLowerCase().includes(query) ||
           p.description.toLowerCase().includes(query) ||
-          p.category.toLowerCase().includes(query)
+          p.category.toLowerCase().includes(query) ||
+          p.room?.toLowerCase().includes(query) ||
+          p.aesthetic?.toLowerCase().includes(query)
       );
     }
 
@@ -77,7 +97,21 @@ export default function Products() {
       );
     }
 
-    // 3. Color Filter
+    // 3. Room Filter
+    if (selectedRoom !== 'All') {
+      result = result.filter(
+        (p) => p.room?.toLowerCase() === selectedRoom.toLowerCase()
+      );
+    }
+
+    // 4. Aesthetic Filter
+    if (selectedAesthetic !== 'All') {
+      result = result.filter(
+        (p) => p.aesthetic?.toLowerCase() === selectedAesthetic.toLowerCase()
+      );
+    }
+
+    // 5. Color Filter
     if (selectedColor !== 'All') {
       const colorQueryGroup = AVAILABLE_COLORS.find(c => c.name === selectedColor);
       if (colorQueryGroup) {
@@ -89,17 +123,17 @@ export default function Products() {
       }
     }
 
-    // 4. Size Filter
+    // 6. Size Filter
     if (selectedSize !== 'All') {
       result = result.filter((p) =>
         p.sizes?.some((s) => s.toLowerCase() === selectedSize.toLowerCase())
       );
     }
 
-    // 5. Price Filter
+    // 7. Price Filter
     result = result.filter((p) => p.price <= maxPrice);
 
-    // 6. Sorting Logic
+    // 8. Sorting Logic
     if (sortBy === 'price-asc') {
       result.sort((a, b) => a.price - b.price);
     } else if (sortBy === 'price-desc') {
@@ -116,12 +150,14 @@ export default function Products() {
     }
 
     return result;
-  }, [searchTerm, selectedCategory, selectedColor, selectedSize, maxPrice, sortBy]);
+  }, [searchTerm, selectedCategory, selectedRoom, selectedAesthetic, selectedColor, selectedSize, maxPrice, sortBy]);
 
   // Active filter count calculation
   const activeFiltersCount = [
     searchTerm !== '',
     selectedCategory !== 'All',
+    selectedRoom !== 'All',
+    selectedAesthetic !== 'All',
     selectedColor !== 'All',
     selectedSize !== 'All',
     maxPrice < 3500
@@ -132,16 +168,16 @@ export default function Products() {
       {/* Editorial Header */}
       <div className="mb-8 border-b border-slate-200 pb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <span className="text-xs uppercase tracking-widest text-slate-405 font-bold">LUMINA CATALOGUE</span>
-          <h1 className="text-3xl font-extrabold text-[#0b1c30] mt-1">Shop Modern Essentials</h1>
+          <span className="text-xs uppercase tracking-widest text-slate-400 font-bold">LUMINA INTERIOR MATRIX</span>
+          <h1 className="text-3xl font-extrabold text-[#0b1c30] mt-1">Shop Premium Interiors</h1>
           <p className="text-xs text-slate-500 mt-2">
-            Refined collection of structural tailored apparel, sculptural home artifacts, and polished technical accessories.
+            Refined collection of smart home appliances, high-contrast ambient lighting, designer office nodes, and minimal wabi-sabi decor.
           </p>
         </div>
         
         {/* Sort Trigger */}
         <div className="flex items-center gap-2 self-stretch md:self-auto justify-end">
-          <label htmlFor="sort-select" className="text-xs text-slate-400 uppercase tracking-wider font-bold">SortBy:</label>
+          <label htmlFor="sort-select" className="text-xs text-slate-450 uppercase tracking-wider font-bold">SortBy:</label>
           <select
             id="sort-select"
             value={sortBy}
@@ -174,6 +210,12 @@ export default function Products() {
           CATEGORIES={CATEGORIES}
           AVAILABLE_COLORS={AVAILABLE_COLORS}
           AVAILABLE_SIZES={AVAILABLE_SIZES}
+          selectedRoom={selectedRoom}
+          setSelectedRoom={setSelectedRoom}
+          ROOMS={ROOMS}
+          selectedAesthetic={selectedAesthetic}
+          setSelectedAesthetic={setSelectedAesthetic}
+          AESTHETICS={AESTHETICS}
         />
 
         {/* ========= PRODUCT LISTING GRID ========= */}
@@ -185,7 +227,7 @@ export default function Products() {
                 Showing:
               </span>
               <span className="text-xs font-bold text-slate-800">
-                {filteredProducts.length} of {PRODUCTS.length} standard items found
+                {filteredProducts.length} of {PRODUCTS.length} aesthetic items found
               </span>
             </div>
 
@@ -194,8 +236,20 @@ export default function Products() {
               <div className="flex flex-wrap gap-2">
                 {selectedCategory !== 'All' && (
                   <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border border-slate-200 font-sans">
-                    {selectedCategory}
+                    Category: {selectedCategory}
                     <button onClick={() => setSelectedCategory('All')} className="hover:text-black font-semibold ml-1">&times;</button>
+                  </span>
+                )}
+                {selectedRoom !== 'All' && (
+                  <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border border-slate-200 font-sans">
+                    Room: {selectedRoom}
+                    <button onClick={() => setSelectedRoom('All')} className="hover:text-black font-semibold ml-1">&times;</button>
+                  </span>
+                )}
+                {selectedAesthetic !== 'All' && (
+                  <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border border-slate-200 font-sans">
+                    Aesthetic: {selectedAesthetic}
+                    <button onClick={() => setSelectedAesthetic('All')} className="hover:text-black font-semibold ml-1">&times;</button>
                   </span>
                 )}
                 {selectedColor !== 'All' && (
@@ -226,7 +280,7 @@ export default function Products() {
               <SearchX className="text-slate-350 w-16 h-16 stroke-[1.2] mb-4" />
               <h3 className="text-base font-bold text-slate-800">No products match your parameters</h3>
               <p className="text-xs text-slate-500 max-w-xs mt-1.5 leading-relaxed font-sans">
-                Adjust or clear filters to locate premium wool coats, architectural accessories, or tech docks.
+                Adjust or clear filters to locate premium modern interior assets.
               </p>
               <button
                 onClick={handleClearAllFilters}

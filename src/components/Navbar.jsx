@@ -70,10 +70,10 @@ export default function Navbar() {
               Shop All
             </NavLink>
             <NavLink
-              to="/products?category=Apparel"
+              to="/products?category=Smart Home"
               className="font-sans text-sm tracking-wide text-slate-500 hover:text-black font-medium transition-colors uppercase select-none cursor-pointer pb-1"
             >
-              Apparel
+              Smart Home
             </NavLink>
             <NavLink
               to="/collections"
@@ -194,11 +194,11 @@ export default function Navbar() {
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </Link>
             <Link
-              to="/products?category=Apparel"
+              to="/products?category=Smart Home"
               onClick={() => setIsMobileMenuOpen(false)}
               className="font-semibold text-base py-2 border-b border-slate-100 text-slate-600 hover:text-slate-800 text-left cursor-pointer flex justify-between items-center"
             >
-              <span>Apparel</span>
+              <span>Smart Home</span>
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </Link>
             <Link

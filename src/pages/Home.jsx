@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { PRODUCTS } from '../data/products';
 import ProductCard from '../components/ProductCard';
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 
 export default function Home() {
   const carouselRef = useRef(null);
@@ -18,9 +18,13 @@ export default function Home() {
   };
 
   const trendingProducts = PRODUCTS.filter(
-    (p) => p.isTrending || p.id === 'sculptural-wool-overcoat' || p.id === 'heavyweight-organic-tee'
+    (p) => p.isTrending || p.badge === 'SMART' || p.badge === 'BESTSELLER'
   );
-  const featuredFurniture = PRODUCTS.filter((p) => p.category === 'Home').slice(0, 3);
+  
+  // Featured smart lighting and appliances
+  const featuredTech = PRODUCTS.filter(
+    (p) => p.category === 'Smart Home' || p.category === 'Lighting'
+  ).slice(0, 3);
 
   return (
     <div className="space-y-16 pb-12 font-sans">
@@ -29,24 +33,25 @@ export default function Home() {
         {/* Absolute Background image */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=2070&auto=format&fit=crop"
-            alt="Lumina Collection background"
+            src="https://images.unsplash.com/photo-1558002038-1055907df827?q=80&w=2070&auto=format&fit=crop"
+            alt="Lumina Smart Home Collection background"
             className="w-full h-full object-cover opacity-45 mix-blend-overlay scale-105 duration-700 hover:scale-100 transition-transform"
           />
         </div>
 
         {/* Hero Copy overlay */}
         <div className="relative z-10 max-w-[1280px] mx-auto w-full px-8 md:px-12 flex flex-col items-start gap-4">
-          <span className="text-xs uppercase tracking-[0.3em] font-bold text-slate-350">
-            Lumina Autumn / Winter Collection
+          <span className="text-xs uppercase tracking-[0.3em] font-bold text-slate-350 flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            LUMINA SMART INTERIOR MATRIX
           </span>
           
           <h1 className="font-sans font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-white max-w-2xl leading-tight">
-            Quiet luxury, sculptural tailoring, architectural forms.
+            Quiet smart luxury, modern interior lines.
           </h1>
 
           <p className="text-sm sm:text-base text-slate-300 max-w-lg leading-relaxed mt-2">
-            A celebration of soft textiles, high-contrast concrete and glass lines, and minimalist design. Discover pieces made to last.
+            A harmonious integration of automated lights, organic ceramic materials, and minimalist shapes. Craft a workspace or sanctuary aligned with tranquility.
           </p>
 
           <div className="flex flex-wrap gap-4 mt-6">
@@ -60,91 +65,88 @@ export default function Home() {
               to="/collections"
               className="border border-white/60 hover:bg-white/10 text-white font-bold tracking-widest text-xs uppercase px-8 py-3.5 rounded transition-transform hover:-translate-y-0.5 cursor-pointer text-center"
             >
-              Curated Living
+              Curated Portfolios
             </Link>
           </div>
         </div>
 
         {/* Bottom subtle layout marker */}
         <div className="absolute bottom-6 left-8 right-8 flex justify-between items-center text-[10px] tracking-widest text-white/50 uppercase z-10">
-          <span>CURATED SERIES 04 / EDITION 01</span>
-          <span>EST. MCMLXXV</span>
+          <span>CURATED SERIES 05 / EDITION 02</span>
+          <span>SMART INTERIOR ARCHITECTURE</span>
         </div>
       </section>
 
-      {/* 2. CHOOSE BY CURATED CATEGORY BLOCKS */}
+      {/* 2. CHOOSE BY DYNAMIC ROOM TYPE */}
       <section className="max-w-[1280px] mx-auto px-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
           <div>
-            <span className="text-xs uppercase tracking-widest text-slate-400 font-bold">Collections</span>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-[#0b1c30] mt-1">Shop by Category</h2>
+            <span className="text-xs uppercase tracking-widest text-slate-400 font-bold">Room-Based Shopping</span>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-[#0b1c30] mt-1">Shop By Curated Rooms</h2>
           </div>
           <Link
             to="/products"
-            className="text-xs font-bold uppercase tracking-widest text-blue-900 border-b border-blue-900/60 pb-0.5 hover:opacity-80 transition-all flex items-center gap-1 cursor-pointer"
+            className="text-xs font-bold uppercase tracking-widest text-slate-800 border-b border-slate-800/60 pb-0.5 hover:opacity-80 transition-all flex items-center gap-1 cursor-pointer"
           >
-            See all collections <ArrowRight className="w-3.5 h-3.5" />
+            See all room setups <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
         {/* 3 Interactive Grid blocks */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* APPAREL CARD */}
+          {/* GAMING SETUP CARD */}
           <Link
-            to="/products?category=Apparel"
+            to="/products?room=Gaming Setup"
             className="group relative h-[380px] bg-slate-100 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer block"
           >
             <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhbpiZYGfxQWx7yqgLTk4OoztR7yx9ee0Nu7l5WhpBOwHjGQRBYsFTPp2VW2NDIeVTZjbPFkpVzivEHTfkppgFarSBS2rs_zEUkJzt8JIMmi7uarGrLUaI4hIq1SIr_uM7GbO_W83IraamteGbgBKrigcA4sRoIRXmpbmBslJfgasOMnBrCTQHjYGnQXlULy5qKcFaXaZnbo7n6mGCjz4dFn8TVk2CwRMIrQthYvcm4yrGQAjqkK-Q6Nc8PrlomeIc_42osjqEiwQ"
-              alt="Premium Apparel"
+              src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop"
+              alt="Premium Gaming Setup"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-              referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent flex flex-col justify-end p-6 text-white">
-              <span className="text-[10px] uppercase tracking-wider text-slate-350 font-bold mb-1">Vol. 4 Apparel</span>
-              <h3 className="text-lg font-bold">Tailored Outerwear &amp; Knits</h3>
-              <p className="text-xs text-slate-300 mt-1 line-clamp-2 max-w-xs opacity-80">
-                Premium cashmere blends and architectural double-breasted overcoats designed for refined ease.
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent flex flex-col justify-end p-6 text-white">
+              <span className="text-[10px] uppercase tracking-wider text-slate-300 font-bold mb-1">Gaming Setup</span>
+              <h3 className="text-lg font-bold">Monolithic Gaming Room</h3>
+              <p className="text-xs text-slate-300 mt-1 line-clamp-2 max-w-xs opacity-90">
+                Responsive smart acoustics, full-spectrum LED bars, and matte-black desktop grids.
               </p>
             </div>
           </Link>
 
-          {/* ACCESSORIES CARD */}
+          {/* STUDY ROOM CARD */}
           <Link
-            to="/products?category=Accessories"
+            to="/products?room=Study Room"
             className="group relative h-[380px] bg-slate-100 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer block"
           >
             <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7zeXdi3NTg4dBr5a7Ic8HJY18EKt_oxGzOVhyru4vLuT_bDrawiLfiZ8Q22EPGZBRoli0Hjrvwm6pwF5BERwFup9rRTId_Wmi8JcDuxD8hyH58ZP9XsAQmkG1m9mz7JhjD0uEp6W48WmGEinKZ9EUtx97sWjIq9Kkky-FrHi3GuWO8SSRXZfJpFjshjdrtn-C8w-B0xPItH9SLRr09DxwLFt_97aLmQQiEijia6h1iu5BIlEdveOq1O-hBZqk9ilbJiih2-iExgI"
-              alt="Sculpted Accessories"
+              src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=600&auto=format&fit=crop"
+              alt="Study & Office Room"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-              referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent flex flex-col justify-end p-6 text-white">
-              <span className="text-[10px] uppercase tracking-wider text-slate-350 font-bold mb-1">Essential Accents</span>
-              <h3 className="text-lg font-bold">Architectural Leather &amp; Optics</h3>
-              <p className="text-xs text-slate-300 mt-1 line-clamp-2 max-w-xs opacity-80">
-                Fine leather totes and geometric titanium spectacles focusing purely on essential curves.
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent flex flex-col justify-end p-6 text-white">
+              <span className="text-[10px] uppercase tracking-wider text-slate-300 font-bold mb-1">Study Room</span>
+              <h3 className="text-lg font-bold">Focal Workspace Setup</h3>
+              <p className="text-xs text-slate-300 mt-1 line-clamp-2 max-w-xs opacity-90">
+                Oak electric standing desks, air purifiers, high-CRI bulbs, and historical gothic wood shelves.
               </p>
             </div>
           </Link>
 
-          {/* HOME CARD */}
+          {/* BALCONY & BEDROOM CARD */}
           <Link
-            to="/collections?zone=living"
+            to="/products?room=Balcony"
             className="group relative h-[380px] bg-slate-100 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer block"
           >
             <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDR__-aysc0WmVxhcUE4NfOlPodlobhEU7jqm8JYDGUSIUcn99tt41i5xgHURXEmmkMLCj7-x57bTups8CSnW0zfcuzBACe9e50QxCbZETE6OSwaUua0PDUXpDdxdimEoPqU6INKOV6k9y2_n_eIIzXKHS4mp4-wV7MfriVSlKaEXtRjK0plRm-1TNp8Q29Ayx_TXwtFugJBcym0V5VNQjxP9IY0XpkKZZR1XEFlrXfg1PxJH9bnQZah4BURB068OqyPR34EN21gJY"
-              alt="Curated Living Space"
+              src="https://images.unsplash.com/photo-1538688525198-9b88f6f53126?q=80&w=600&auto=format&fit=crop"
+              alt="Balcony & Living Room"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-              referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent flex flex-col justify-end p-6 text-white">
-              <span className="text-[10px] uppercase tracking-wider text-slate-350 font-bold mb-1">Design Studio</span>
-              <h3 className="text-lg font-bold">The Home Living Series</h3>
-              <p className="text-xs text-slate-300 mt-1 line-clamp-2 max-w-xs opacity-80">
-                Sculptural ceramic furniture, modern lighting fixtures, and modular sofa pairings.
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent flex flex-col justify-end p-6 text-white">
+              <span className="text-[10px] uppercase tracking-wider text-slate-300 font-bold mb-1">Balcony &amp; Zen</span>
+              <h3 className="text-lg font-bold">Wabi-Sabi Sanctuary</h3>
+              <p className="text-xs text-slate-300 mt-1 line-clamp-2 max-w-xs opacity-90">
+                Preserved moss art pieces, sand rake sandscapes, aroma mist diffusers, and coarse clay vases.
               </p>
             </div>
           </Link>
@@ -152,7 +154,7 @@ export default function Home() {
       </section>
 
       {/* 3. TRENDING SLIDER CAROUSEL */}
-      <section className="bg-slate-55 border-y border-slate-200/50 py-16">
+      <section className="bg-slate-50 border-y border-slate-200/50 py-16">
         <div className="max-w-[1280px] mx-auto px-6">
           <div className="flex justify-between items-end mb-8">
             <div>
@@ -193,42 +195,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. THE HOME ACCENTS EXHIBITION (FURNITURE SPEC) */}
+      {/* 4. THE SMART HOME ACCENTS EXHIBITION */}
       <section className="max-w-[1280px] mx-auto px-6">
         <div className="bg-white rounded-xl border border-slate-200/50 p-6 md:p-12 shadow-xs grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <div className="space-y-6">
             <span className="text-xs uppercase tracking-widest text-[#0b1c30] font-bold py-1 px-3 bg-[#FAF9F5] border border-slate-200/40 rounded-full">
-              Featured Exhibition
+              Automated Ambient Curation
             </span>
             
             <h2 className="font-sans font-extrabold text-3xl sm:text-4xl tracking-tight text-[#0b1c30] leading-tight">
-              Design Aesthetics: The Living Space Curated
+              Design Aesthetics: The Modern Smart Home
             </h2>
 
             <p className="text-sm text-slate-500 leading-relaxed">
-              Explore dynamic forms where design acts as silence. Featuring the solid bone-white lines of the <strong className="text-black">Arc Chair</strong> paired with aluminum light accents and modular storage layouts. Made from raw earthen materials processed manually.
+              Explore dynamic forms where automation serves tranquility. Featuring smart PM2.5 monitoring air purifiers, 360 acoustic smart speakers, and high-CRI ambient lights scheduled to match your wakeful circadian rhythms.
             </p>
 
             <div className="grid grid-cols-3 gap-4 py-4 border-y border-slate-100 text-[#0b1c30]">
               <div>
+                <span className="block font-bold text-lg">6</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Rooms Covered</span>
+              </div>
+              <div>
                 <span className="block font-bold text-lg">9</span>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Unique Categories</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Aesthetic Themes</span>
               </div>
               <div>
                 <span className="block font-bold text-lg">100%</span>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Sustainable Materials</span>
-              </div>
-              <div>
-                <span className="block font-bold text-lg">Lifetime</span>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Repair Warranty</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Connected Guarantee</span>
               </div>
             </div>
 
             <Link
-              to="/collections?zone=living"
+              to="/products?category=Smart Home"
               className="bg-black hover:bg-slate-800 text-white text-xs font-bold tracking-widest uppercase py-3.5 px-8 rounded shadow-sm transition-all cursor-pointer inline-block text-center"
             >
-              Browse Living Spaces
+              Browse Smart Home Tech
             </Link>
           </div>
 
@@ -236,7 +238,7 @@ export default function Home() {
             <div className="space-y-4">
               <div className="h-[210px] bg-slate-50 rounded-lg overflow-hidden border border-slate-100">
                 <img
-                  src={featuredFurniture[0]?.imageUrl}
+                  src={featuredTech[0]?.imageUrl}
                   alt="Feature 1"
                   className="w-full h-full object-cover float-none"
                   referrerPolicy="no-referrer"
@@ -244,7 +246,7 @@ export default function Home() {
               </div>
               <div className="h-[140px] bg-slate-50 rounded-lg overflow-hidden border border-slate-100">
                 <img
-                  src={featuredFurniture[1]?.imageUrl}
+                  src={featuredTech[1]?.imageUrl}
                   alt="Feature 2"
                   className="w-full h-full object-cover float-none"
                   referrerPolicy="no-referrer"
@@ -254,14 +256,14 @@ export default function Home() {
             <div className="pt-8 space-y-4">
               <div className="h-[140px] bg-slate-50 rounded-lg overflow-hidden border border-slate-100">
                 <img
-                  src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=600&auto=format&fit=crop"
+                  src="https://images.unsplash.com/photo-1558002038-1055907df827?q=80&w=600&auto=format&fit=crop"
                   alt="Curated details"
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="h-[210px] bg-slate-50 rounded-lg overflow-hidden border border-slate-100">
                 <img
-                  src={featuredFurniture[2]?.imageUrl}
+                  src={featuredTech[2]?.imageUrl}
                   alt="Feature 3"
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
@@ -278,7 +280,7 @@ export default function Home() {
           <span className="text-xs uppercase tracking-widest text-slate-400 font-bold">Lumina Journal</span>
           <h2 className="text-2xl font-extrabold text-[#0b1c30] mt-1">Aesthetic Editorial Stories</h2>
           <p className="text-slate-500 text-xs mt-2 leading-relaxed">
-            Delving deeper into manufacturing processes, minimalist interior architecture, and sustainable craftsmanship.
+            Delving deeper into smart home connectivity setups, minimalist wabi-sabi room styling, and natural sustainable interior design philosophy.
           </p>
         </div>
 
@@ -287,19 +289,19 @@ export default function Home() {
           <article className="space-y-4 group">
             <div className="aspect-[16/10] bg-slate-200 overflow-hidden rounded-lg cursor-pointer">
               <img
-                src="https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=600&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1558002038-1055907df827?q=80&w=600&auto=format&fit=crop"
                 alt="Story 1"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
             </div>
             <span className="text-[10px] text-slate-450 font-bold uppercase tracking-widest block font-mono">
-              JOURNAL • ISSUE 04
+              JOURNAL • ISSUE 05
             </span>
             <h3 className="font-bold text-base text-slate-800 group-hover:text-black cursor-pointer group-hover:underline decoration-1 underline-offset-4">
-              The Art of Hand-Stitched Cashmere and Wool Layers
+              Circadian Lighting: Tuning Ambient Light to Wakeful Patterns
             </h3>
             <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
-              Inside our Florentine workshop, each double-faced overcoat is stitched manual frame-by-frame, taking up to 18 hours to shape accurately.
+              How scheduling RGB smart bulbs and ambient LED paths to transition from cool white to deep warm glows can optimize hormone releases and rest quality.
             </p>
           </article>
 
@@ -307,19 +309,19 @@ export default function Home() {
           <article className="space-y-4 group">
             <div className="aspect-[16/10] bg-slate-200 overflow-hidden rounded-lg cursor-pointer">
               <img
-                src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=600&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=600&auto=format&fit=crop"
                 alt="Story 2"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
             </div>
             <span className="text-[10px] text-slate-450 font-bold uppercase tracking-widest block font-mono">
-              ARCHITECTURE • Curated
+              INTERIORS • Curated
             </span>
             <h3 className="font-bold text-base text-slate-800 group-hover:text-black cursor-pointer group-hover:underline decoration-1 underline-offset-4">
-              Modernism at Home: Balancing Concrete, Glass, and Linens
+              The Architecture of the Modern Silent Desk Space
             </h3>
             <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
-              How Scandinavian architects use raw earth textures and floor-to-ceiling daylight apertures to establish calm interiors.
+              Combining solid oak steam-bent standing desks, cement desk trays, and PM2.5 clean air purification filters to support quiet concentration blocks.
             </p>
           </article>
 
@@ -327,19 +329,19 @@ export default function Home() {
           <article className="space-y-4 group">
             <div className="aspect-[16/10] bg-slate-200 overflow-hidden rounded-lg cursor-pointer">
               <img
-                src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=600&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=600&auto=format&fit=crop"
                 alt="Story 3"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
             </div>
             <span className="text-[10px] text-slate-450 font-bold uppercase tracking-widest block font-mono">
-              DESIGNERS • INTERVIEW
+              MEDITATION • BALCONY
             </span>
             <h3 className="font-bold text-base text-slate-800 group-hover:text-black cursor-pointer group-hover:underline decoration-1 underline-offset-4">
-              Sustainable Luxury: Handlooms and GOTS Organic Heavyweight Standards
+              Designing Wabi-Sabi Sanctuaries with Preserved Moss & Sandscapes
             </h3>
             <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
-              A deep conversation with cotton growers about heavy knit compositions and minimizing clean water consumption footprints.
+              Delving into natural sandstone ceramics, aroma vapor diffusion, and zero-maintenance preserved forest moss artwork to construct spaces of active meditation.
             </p>
           </article>
         </div>

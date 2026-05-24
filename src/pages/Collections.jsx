@@ -5,55 +5,66 @@ import { Star, ChevronUp, ChevronDown, Sparkles } from 'lucide-react';
 
 export default function Collections() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeZone, setActiveZone] = useState('living');
+  const [activeZone, setActiveZone] = useState('zen');
   const [expandedSpec, setExpandedSpec] = useState('materials');
 
-  // Sync activeZone with URL params (e.g. /collections?zone=workspace)
+  // Sync activeZone with URL params (e.g. /collections?aesthetic=zen)
   useEffect(() => {
-    const zoneParam = searchParams.get('zone');
-    if (zoneParam && ['living', 'workspace', 'bedroom'].includes(zoneParam)) {
-      setActiveZone(zoneParam);
+    const aestheticParam = searchParams.get('aesthetic');
+    if (aestheticParam && ['zen', 'minimalist', 'scandinavian', 'luxury'].includes(aestheticParam)) {
+      setActiveZone(aestheticParam);
     }
   }, [searchParams]);
 
   const handleZoneSwitch = (zone) => {
     setActiveZone(zone);
-    setSearchParams({ zone });
+    setSearchParams({ aesthetic: zone });
     setExpandedSpec('materials'); // reset spec accordion
   };
 
   const collections = {
-    living: {
-      title: 'Living Room Architecture',
-      subtitle: 'Sculptural forms serving everyday conversation comfort.',
-      story: 'Balanced around organic silhouettes, concrete, and woven fibers. Designed to celebrate light shadows and quiet, open spacing.',
-      products: PRODUCTS.filter(p => p.category === 'Home' && p.id !== 'axis-desk-lamp'),
+    zen: {
+      title: 'Wabi-Sabi & Zen Sanctuary',
+      subtitle: 'Organic coarse clays, natural ashwood, and silent quartz sands.',
+      story: 'Rooted in transient asymmetry, natural materials, and quiet open space. Designed to foster high-key tranquility, organic comfort, and active mindfulness in the balcony or bedroom.',
+      products: PRODUCTS.filter(p => p.aesthetic === 'Japanese Zen'),
       specs: [
-        { id: 'materials', title: 'Solid-Core Clay & Fibers', text: 'Earthen materials are molded in manual workshops before being fired in kiln modules. Cushions utilize organic duck feathers.' },
-        { id: 'dimensions', title: 'Proportions & Scale', text: 'Arc Chair represents structural 84cm width with soft 44cm seat heights. Perfect match for low-key coffee layouts.' },
-        { id: 'designers', title: 'Studio Lumina Florentine', text: 'Curated by design architect Beatrice Rossi in collaboration with sustainable workshops in Tuscany, Italy.' }
+        { id: 'materials', title: 'Unrefined Stoneware & Ashwood', text: 'Stoneware is molded manually in historic Kyoto workshops before firing. Solid Ashwood components highlight natural open grain.' },
+        { id: 'philosophy', title: 'Wabi-Sabi Aesthetic', text: 'Embracing natural imperfections, rustic tactile finishes, and raw structural beauty representing the peaceful passage of time.' },
+        { id: 'designers', title: 'Kyoto Handloom & Lumina Lab', text: 'Curated in collaboration with traditional craft studios in Japan and Florentine architectural labs.' }
       ]
     },
-    workspace: {
-      title: 'Monolithic Workspace',
-      subtitle: 'Quiet concentration driven by brushed metallurgy and fine optics.',
-      story: 'Crafted for focused clarity. Utilizing anodized aluminum, linear pen decks, and crisp warm lighting angles.',
-      products: PRODUCTS.filter(p => p.id === 'axis-desk-lamp' || p.id === 'architect-series-pen' || p.id === 'modular-key-deck' || p.id === 'linear-titanium-frames'),
+    minimalist: {
+      title: 'Prism & Line Minimalism',
+      subtitle: 'Crisp absolute whites, geometric cement, and pure smart light spectrums.',
+      story: 'A disciplined purge of physical excess. Focusing entirely on essential geometric structures, zero-glare ambient glows, and clean cast concrete desks or study nodes.',
+      products: PRODUCTS.filter(p => p.aesthetic === 'Minimalist'),
       specs: [
-        { id: 'materials', title: 'Anodized 6061 Aluminum', text: 'Stiff, lightweight materials manufactured through high-precision water jet mills and finished in clean bead blasts.' },
-        { id: 'dimensions', title: 'Productive Workspace Proportions', text: 'All task assets are designed with zero-noise physical footprints to minimize active table clutter.' },
-        { id: 'designers', title: 'Aalto-Müller Team', text: 'Drawn in Copenhagen following German functionalist guidelines for micro ergonomics.' }
+        { id: 'materials', title: 'Cement & Frosted Polycarbonate', text: 'Desk organizers utilize heavy micro-ground structural cement compounds. Lighting fixtures house frosted polycarbonate lenses.' },
+        { id: 'philosophy', title: 'Form Follows Silence', text: 'Streamlining active task footprints to reduce mental friction and boost clean workspace focus.' },
+        { id: 'designers', title: 'Studio Lumina Stockholm', text: 'Drawn in Stockholm following German functionalist guidelines for micro ergonomics and zero-noise footprints.' }
       ]
     },
-    bedroom: {
-      title: 'The Sanctuary Retreat',
-      subtitle: 'Quiet layers and dim ambient temperatures.',
-      story: 'A space of soft, high-yarn count linens, quiet warm grays, and comfortable apparel layers designed for relaxation.',
-      products: PRODUCTS.filter(p => p.id === 'ultrafine-cashmere-crew' || p.id === 'lumina-journal-vol4' || p.id === 'heavyweight-organic-tee'),
+    scandinavian: {
+      title: 'Nordic Hygge & Oak Architecture',
+      subtitle: 'Steam-bent solid ashwood, natural oak wood grains, and soft cognac leather saddles.',
+      story: 'Warm, luminous daylight elements celebrating active family dinners, long productive desk hours, and peaceful reading sessions in deep comfortable chairs.',
+      products: PRODUCTS.filter(p => p.aesthetic === 'Scandinavian'),
       specs: [
-        { id: 'materials', title: 'Long-staple Organic Flax & Cashmere', text: 'Yarns are picked ethically from premium partners in Inner Mongolia and spun loosely for cloud-soft breathability.' },
-        { id: 'dimensions', title: 'Bedding Spec Matrix', text: 'Sheets available in full California King and standard Queen outlines with 400 thread counts.' },
-        { id: 'designers', title: 'Lumina Design Lab', text: 'Conceived in-house to bridge the gap between architectural structures and bedtime textile ease.' }
+        { id: 'materials', title: 'Ashwood, Oak & Cognac Leather', text: 'Chairs use steam-bent solid ashwood and vegetable-tanned leather. Table tops use thick, solid European Oak wood.' },
+        { id: 'philosophy', title: 'Nordic Humanist Hygge', text: 'Warm hospitality, structural durability, and ergonomic geometry crafted to last for generations.' },
+        { id: 'designers', title: 'Aalto-Müller Team', text: 'Created in Copenhagen, Denmark by the award-winning Aalto-Müller architectural partnership.' }
+      ]
+    },
+    luxury: {
+      title: 'Polished Brass & Velvet Luxury',
+      subtitle: 'Hand-welded brass branches, mouth-blown borosilicate spheres, and deep plush velvets.',
+      story: 'Daring high-contrast statement pieces combining slender elegant brass profiles with deep velvet cushions and smart, responsive acoustics.',
+      products: PRODUCTS.filter(p => p.aesthetic === 'Luxury Modern'),
+      specs: [
+        { id: 'materials', title: 'Brass, Velvet & Borosilicate Glass', text: 'Glass globes are hand-blown from premium borosilicate. Velvet fabric is woven tightly to resist spillages.' },
+        { id: 'philosophy', title: 'Statement Sophistication', text: 'Expressive elegance, high-lux contrast, and supreme craft designed to serve as central architectural talking points.' },
+        { id: 'designers', title: 'Studio Rossi Tuscan', text: 'Drawn by designer Beatrice Rossi and forged manually in custom ironworks and brass workshops in Tuscany, Italy.' }
       ]
     }
   };
@@ -65,14 +76,14 @@ export default function Collections() {
       {/* 1. SECTOR CHOSEN BANNER */}
       <div className="text-center max-w-xl mx-auto space-y-3">
         <span className="text-xs uppercase tracking-widest text-slate-400 font-bold">CURATED HOUSES</span>
-        <h1 className="text-3xl font-extrabold text-[#0b1c30]">Curated Collections Showcase</h1>
+        <h1 className="text-3xl font-extrabold text-[#0b1c30]">Aesthetic Collections Portfolio</h1>
         <p className="text-xs text-slate-500 leading-relaxed">
-          Switch between spatial zones to explore custom bento grids, tactile material specs, and spatial design stories.
+          Switch between designer aesthetics to explore custom spatial portfolios, tactile material specifications, and architectural design stories.
         </p>
 
-        {/* Triple switches tabs */}
-        <div className="flex justify-center gap-2 pt-4">
-          {['living', 'workspace', 'bedroom'].map((zone) => (
+        {/* Quad switches tabs */}
+        <div className="flex flex-wrap justify-center gap-2 pt-4">
+          {['zen', 'minimalist', 'scandinavian', 'luxury'].map((zone) => (
             <button
               key={zone}
               onClick={() => handleZoneSwitch(zone)}
@@ -82,7 +93,7 @@ export default function Collections() {
                   : 'bg-white text-slate-500 hover:text-black border border-slate-200'
               }`}
             >
-              {zone === 'living' ? 'Living Room' : zone === 'workspace' ? 'Workspace' : 'Bedroom'}
+              {zone === 'zen' ? 'Japanese Zen' : zone === 'minimalist' ? 'Minimalist' : zone === 'scandinavian' ? 'Scandinavian' : 'Luxury Modern'}
             </button>
           ))}
         </div>
@@ -148,7 +159,7 @@ export default function Collections() {
         <div className="lg:col-span-7 space-y-6">
           <div className="flex justify-between items-center border-b border-slate-100 pb-3">
             <h3 className="text-xs uppercase tracking-widest text-[#0b1c30] font-bold">
-              Matching Design Artifacts
+              Curated Design Artifacts
             </h3>
             <span className="text-xs font-mono text-slate-400">
               {activeCollection.products.length} Items Listed
@@ -183,7 +194,7 @@ export default function Collections() {
                     <span>{p.category}</span>
                     <span className="flex items-center text-amber-500 gap-0.5"><Star className="w-3 h-3 fill-current" /> {p.rating}</span>
                   </div>
-                  <h4 className="font-bold text-sm text-slate-805 group-hover:underline">
+                  <h4 className="font-bold text-sm text-slate-800 group-hover:underline">
                     {p.name}
                   </h4>
                   <p className="text-xs font-extrabold text-[#0b1c30] pt-1">
