@@ -1,4 +1,4 @@
-import { SlidersHorizontal, RotateCcw, Home, Sparkles, Folder, DollarSign } from 'lucide-react';
+import { SlidersHorizontal, RotateCcw, Home, Sparkles, Folder, IndianRupee } from 'lucide-react';
 import SearchBar from './SearchBar';
 
 export default function Sidebar({
@@ -129,24 +129,24 @@ export default function Sidebar({
       <div className="space-y-3 pt-2">
         <div className="flex justify-between items-center">
           <h3 className="text-[10px] uppercase tracking-widest font-extrabold text-slate-400 flex items-center gap-1">
-            <DollarSign className="w-3.5 h-3.5 text-slate-400" />
+            <IndianRupee className="w-3.5 h-3.5 text-slate-400" />
             <span>Max Budget</span>
           </h3>
-          <span className="text-xs font-bold font-mono text-slate-800">${maxPrice}</span>
+          <span className="text-xs font-bold font-mono text-slate-800">₹{maxPrice.toLocaleString('en-IN')}</span>
         </div>
         <input
           type="range"
-          min="30"
-          max="1000"
-          step="10"
+          min="2000"
+          max="100000"
+          step="1000"
           value={maxPrice}
           onChange={(e) => setMaxPrice(parseInt(e.target.value))}
           className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-black focus:outline-none"
           id="price-range-slider"
         />
         <div className="flex justify-between text-[10px] text-slate-400 font-mono">
-          <span>$30</span>
-          <span>$1,000</span>
+          <span>₹2,000</span>
+          <span>₹1,00,000</span>
         </div>
       </div>
 

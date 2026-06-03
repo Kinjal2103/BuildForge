@@ -198,7 +198,7 @@ export default function Collections() {
                     {p.name}
                   </h4>
                   <p className="text-xs font-extrabold text-[#0b1c30] pt-1">
-                    ${p.price.toFixed(2)}
+                    ₹{p.price.toLocaleString('en-IN')}
                   </p>
                 </div>
               </Link>

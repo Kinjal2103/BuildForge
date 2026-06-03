@@ -15,7 +15,7 @@ export default function Products() {
   const [selectedAesthetic, setSelectedAesthetic] = useState('All');
   const [selectedColor, setSelectedColor] = useState('All');
   const [selectedSize, setSelectedSize] = useState('All');
-  const [maxPrice, setMaxPrice] = useState(3500);
+  const [maxPrice, setMaxPrice] = useState(100000);
   const [sortBy, setSortBy] = useState('featured');
 
   // Synchronize initial filters with URL parameters
@@ -68,7 +68,7 @@ export default function Products() {
     setSelectedAesthetic('All');
     setSelectedColor('All');
     setSelectedSize('All');
-    setMaxPrice(3500);
+    setMaxPrice(100000);
     setSortBy('featured');
     setSearchParams({}); // Clear query params
   };
@@ -160,7 +160,7 @@ export default function Products() {
     selectedAesthetic !== 'All',
     selectedColor !== 'All',
     selectedSize !== 'All',
-    maxPrice < 3500
+    maxPrice < 100000
   ].filter(Boolean).length;
 
   return (
@@ -264,10 +264,10 @@ export default function Products() {
                     <button onClick={() => setSelectedSize('All')} className="hover:text-black font-semibold ml-1">&times;</button>
                   </span>
                 )}
-                {maxPrice < 3500 && (
+                {maxPrice < 100000 && (
                   <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border border-slate-200 font-sans">
-                    &lt; ${maxPrice}
-                    <button onClick={() => setMaxPrice(3500)} className="hover:text-black font-semibold ml-1">&times;</button>
+                    &lt; ₹{maxPrice.toLocaleString('en-IN')}
+                    <button onClick={() => setMaxPrice(100000)} className="hover:text-black font-semibold ml-1">&times;</button>
                   </span>
                 )}
               </div>

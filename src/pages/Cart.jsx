@@ -52,9 +52,9 @@ export default function Cart() {
   const rawSubtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   const discountAmount = rawSubtotal * (discountPercent / 100);
   const subtotal = rawSubtotal - discountAmount;
-  const shippingThreshold = 200;
-  const shippingCost = subtotal >= shippingThreshold || subtotal === 0 ? 0 : 15.00;
-  const salesTax = subtotal * 0.0825; // 8.25% sales tax
+  const shippingThreshold = 15000;
+  const shippingCost = subtotal >= shippingThreshold || subtotal === 0 ? 0 : 999.00;
+  const salesTax = subtotal * 0.18; // 18% GST (Standard Indian GST)
   const total = subtotal + shippingCost + salesTax;
 
   const handleApplyPromo = (e) => {
@@ -112,11 +112,11 @@ export default function Cart() {
               </div>
               <div className="flex justify-between">
                 <span>Shipment Class:</span>
-                <span className="font-semibold text-black">Lumina White-Glove Standard</span>
+                <span className="font-semibold text-black">Lumina India Premium Delivery</span>
               </div>
               <div className="flex justify-between">
                 <span>Est. Delivery:</span>
-                <span className="font-semibold text-black">3-5 Business Days</span>
+                <span className="font-semibold text-black">2-4 Business Days</span>
               </div>
             </div>
 
@@ -193,7 +193,7 @@ export default function Cart() {
                             {item.product.name}
                           </h3>
                           <span className="font-mono text-sm font-bold text-slate-900 flex-shrink-0">
-                            ${(item.product.price * item.quantity).toFixed(2)}
+                            ₹{(item.product.price * item.quantity).toLocaleString('en-IN')}
                           </span>
                         </div>
 
@@ -258,7 +258,7 @@ export default function Cart() {
                   </p>
                 ) : (
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Add <strong className="text-slate-800">${(shippingThreshold - subtotal).toFixed(2)}</strong> more to unlock <strong className="text-slate-800">Free Standard Shipping</strong>. Standard delivery fee is $15.00.
+                    Add <strong className="text-slate-800">₹{(shippingThreshold - subtotal).toLocaleString('en-IN')}</strong> more to unlock <strong className="text-slate-800">Free Standard Shipping</strong>. Standard delivery fee is ₹999.00.
                   </p>
                 )}
               </div>
@@ -332,7 +332,7 @@ export default function Cart() {
                     value={shippingForm.address}
                     onChange={handleInputChange}
                     className="w-full bg-slate-50/50 border border-slate-200 rounded px-3 py-2 text-xs focus:outline-none focus:border-black transition-colors"
-                    placeholder="128 Lumina Way, Suite 400"
+                    placeholder="45, Lodhi Road, Suite 300"
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -345,11 +345,11 @@ export default function Cart() {
                       value={shippingForm.city}
                       onChange={handleInputChange}
                       className="w-full bg-slate-50/50 border border-slate-200 rounded px-3 py-2 text-xs focus:outline-none focus:border-black transition-colors"
-                      placeholder="Austin"
+                      placeholder="New Delhi"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Zip Code *</label>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Pincode *</label>
                     <input
                       required
                       type="text"
@@ -357,7 +357,7 @@ export default function Cart() {
                       value={shippingForm.zip}
                       onChange={handleInputChange}
                       className="w-full bg-slate-50/50 border border-slate-200 rounded px-3 py-2 text-xs focus:outline-none focus:border-black transition-colors"
-                      placeholder="78701"
+                      placeholder="110001"
                     />
                   </div>
                 </div>
@@ -432,7 +432,7 @@ export default function Cart() {
                 ) : (
                   <>
                     <Lock className="w-4 h-4" />
-                    <span>Pay Securely ${(total).toFixed(2)}</span>
+                    <span>Pay Securely ₹{total.toLocaleString('en-IN')}</span>
                   </>
                 )}
               </button>
@@ -479,7 +479,7 @@ export default function Cart() {
               <div className="space-y-3 text-xs text-slate-600 border-t border-slate-100 pt-5 font-sans">
                 <div className="flex justify-between">
                   <span>Gross Subtotal</span>
-                  <span className="font-semibold text-slate-900">${rawSubtotal.toFixed(2)}</span>
+                  <span className="font-semibold text-slate-900">₹{rawSubtotal.toLocaleString('en-IN')}</span>
                 </div>
                 
                 {discountPercent > 0 && (
@@ -488,7 +488,7 @@ export default function Cart() {
                       <Percent className="w-3.5 h-3.5" />
                       <span>Discount ({discountPercent}%)</span>
                     </span>
-                    <span className="font-bold">-${discountAmount.toFixed(2)}</span>
+                    <span className="font-bold">-₹{discountAmount.toLocaleString('en-IN')}</span>
                   </div>
                 )}
 
@@ -497,18 +497,18 @@ export default function Cart() {
                   {shippingCost === 0 ? (
                     <span className="text-green-700 font-bold uppercase text-[10px]">Free Shipping</span>
                   ) : (
-                    <span className="font-semibold text-slate-900">${shippingCost.toFixed(2)}</span>
+                    <span className="font-semibold text-slate-900">₹{shippingCost.toLocaleString('en-IN')}</span>
                   )}
                 </div>
 
                 <div className="flex justify-between">
-                  <span>Estimated Sales Tax (8.25%)</span>
-                  <span className="font-semibold text-slate-900">${salesTax.toFixed(2)}</span>
+                  <span>Estimated GST (18%)</span>
+                  <span className="font-semibold text-slate-900">₹{salesTax.toLocaleString('en-IN')}</span>
                 </div>
 
                 <div className="border-t border-slate-200 pt-4 flex justify-between text-black font-extrabold">
                   <span className="text-sm font-extrabold uppercase tracking-wide">Grand Total</span>
-                  <span className="text-lg text-slate-900">${total.toFixed(2)}</span>
+                  <span className="text-lg text-slate-900">₹{total.toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>

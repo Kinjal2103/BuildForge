@@ -87,7 +87,7 @@ export default function Footer() {
             <a href="#" className="hover:text-slate-600">Privacy Policy</a>
             <a href="#" className="hover:text-slate-600">Terms of Service</a>
             <a href="#" className="hover:text-slate-600 font-semibold text-slate-550 flex items-center gap-1 cursor-pointer">
-              <Globe className="w-3.5 h-3.5 text-slate-400" /> USD ($, United States)
+              <Globe className="w-3.5 h-3.5 text-slate-400" /> INR (₹, India)
             </a>
           </div>
         </div>

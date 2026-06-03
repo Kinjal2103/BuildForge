@@ -63,7 +63,7 @@ export default function ProductCard({ product }) {
         {/* Pricing & swatches */}
         <div className="mt-auto pt-3 flex items-center justify-between border-t border-slate-100/50">
           <span className="text-sm font-semibold text-slate-900 font-sans">
-            ${product.price.toFixed(2)}
+            ₹{product.price.toLocaleString('en-IN')}
           </span>
           
           {product.colors && product.colors.length > 0 && (

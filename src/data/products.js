@@ -2,7 +2,7 @@ export const PRODUCTS = [
   {
     id: 'smart-diffuser',
     name: 'Aura Aroma Diffuser',
-    price: 89.00,
+    price: 7490.00,
     rating: 4.9,
     reviews: 142,
     category: 'Smart Home',
@@ -13,7 +13,7 @@ export const PRODUCTS = [
       { name: 'Obsidian Black', hex: '#111827' }
     ],
     sizes: ['Standard', 'Large'],
-    imageUrl: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=600&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1602928321679-560bb453f190?q=80&w=600&auto=format&fit=crop',
     description: 'An ultrasound mist aroma diffuser combining natural wood grain finish with smart home scheduling. Adjust mist intervals and subtle warm ambient rings via Google Home.',
     badge: 'SMART',
     isFeatured: true,
@@ -23,7 +23,7 @@ export const PRODUCTS = [
   {
     id: 'smart-purifier',
     name: 'PureFlow Air Purifier',
-    price: 199.00,
+    price: 16990.00,
     rating: 4.8,
     reviews: 98,
     category: 'Smart Home',
@@ -33,7 +33,7 @@ export const PRODUCTS = [
       { name: 'Optic White', hex: '#FFFFFF' }
     ],
     sizes: ['Standard'],
-    imageUrl: 'https://images.unsplash.com/photo-1585776245991-cf89dd7fc73a?q=80&w=600&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1622560480654-d96214fdc887?q=80&w=600&auto=format&fit=crop',
     description: 'A whisper-quiet cylindrical HEPA-13 air purifier. Features real-time PM2.5 monitoring and smart voice integration wrapped in a sleek, non-intrusive matte housing.',
     badge: 'SMART',
     isTrending: true,
@@ -43,7 +43,7 @@ export const PRODUCTS = [
   {
     id: 'smart-speaker',
     name: 'Synapse Smart Speaker',
-    price: 149.00,
+    price: 12490.00,
     rating: 4.7,
     reviews: 84,
     category: 'Smart Home',
@@ -54,7 +54,7 @@ export const PRODUCTS = [
       { name: 'Alabaster', hex: '#F3F4F6' }
     ],
     sizes: ['One Size'],
-    imageUrl: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?q=80&w=600&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1589003077984-894e133dabab?q=80&w=600&auto=format&fit=crop',
     description: 'An architectural 360-degree wireless smart speaker. Features custom acoustic fabric, capacitive glass-top buttons, and integrated Alexa or Google smart assistance.',
     isTrending: true,
     materials: 'Recycled acoustic yarn wrap, internal high-grade copper coil speakers.',
@@ -63,7 +63,7 @@ export const PRODUCTS = [
   {
     id: 'smart-curtains',
     name: 'Glide Smart Curtains',
-    price: 249.00,
+    price: 21990.00,
     rating: 4.8,
     reviews: 47,
     category: 'Smart Home',
@@ -83,7 +83,7 @@ export const PRODUCTS = [
   {
     id: 'motion-light',
     name: 'SenseMotion LED Strip',
-    price: 59.00,
+    price: 4990.00,
     rating: 4.6,
     reviews: 120,
     category: 'Smart Home',
@@ -93,7 +93,7 @@ export const PRODUCTS = [
       { name: 'Clear', hex: '#E2E8F0' }
     ],
     sizes: ['3 Meter', '5 Meter'],
-    imageUrl: 'https://images.unsplash.com/photo-1565814636199-ae8133055c1c?q=80&w=600&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?q=80&w=600&auto=format&fit=crop',
     description: 'Weatherproof dynamic smart LED strip equipped with active infrared motion detection. Auto-triggers custom low-lux ambient paths at night.',
     badge: 'BESTSELLER',
     materials: 'IP65 silicone-coated flexible copper strips, smart controller hub.',
@@ -102,7 +102,7 @@ export const PRODUCTS = [
   {
     id: 'smart-bulb',
     name: 'Chroma Ambient Smart Bulb',
-    price: 35.00,
+    price: 2990.00,
     rating: 4.9,
     reviews: 210,
     category: 'Lighting',
@@ -112,7 +112,7 @@ export const PRODUCTS = [
       { name: 'RGB Custom', hex: '#FF0000' }
     ],
     sizes: ['E26 Standard'],
-    imageUrl: 'https://images.unsplash.com/photo-1550985616-10810253b84d?q=80&w=600&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1589254065878-42c9da997008?q=80&w=600&auto=format&fit=crop',
     description: 'Full-spectrum RGB smart bulb providing 900 lumens of high-CRI lighting. Synchronizes dynamically with screen content or background sound rhythms.',
     badge: 'SMART',
     isFeatured: true,
@@ -122,7 +122,7 @@ export const PRODUCTS = [
   {
     id: 'pendant-light',
     name: 'Nebula Pendant Light',
-    price: 129.00,
+    price: 10990.00,
     rating: 4.8,
     reviews: 64,
     category: 'Lighting',
@@ -141,7 +141,7 @@ export const PRODUCTS = [
   {
     id: 'chandeliers',
     name: 'Orion Glass Chandelier',
-    price: 499.00,
+    price: 42990.00,
     rating: 5.0,
     reviews: 18,
     category: 'Lighting',
@@ -151,7 +151,7 @@ export const PRODUCTS = [
       { name: 'Brushed Brass', hex: '#D97706' }
     ],
     sizes: ['Standard'],
-    imageUrl: 'https://images.unsplash.com/photo-1543242594-c8bae8b9e728?q=80&w=600&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1517502884422-41eaaced0168?q=80&w=600&auto=format&fit=crop',
     description: 'A striking luxury modern chandelier housing mouth-blown organic glass globes clustered around solid satin-finished brass branches.',
     badge: 'EXCLUSIVE',
     materials: 'Solid brass structural rods, hand-blown borosilicate glass globes.',
@@ -160,7 +160,7 @@ export const PRODUCTS = [
   {
     id: 'floor-lamp',
     name: 'Vector Arc Floor Lamp',
-    price: 189.00,
+    price: 15990.00,
     rating: 4.7,
     reviews: 52,
     category: 'Lighting',
@@ -178,7 +178,7 @@ export const PRODUCTS = [
   {
     id: 'ergo-chair',
     name: 'Apex Ergonomic Chair',
-    price: 349.00,
+    price: 29990.00,
     rating: 4.9,
     reviews: 130,
     category: 'Office',
@@ -189,7 +189,7 @@ export const PRODUCTS = [
       { name: 'Obsidian Black', hex: '#111827' }
     ],
     sizes: ['Standard'],
-    imageUrl: 'https://images.unsplash.com/photo-1505797149-43b0069ec26b?q=80&w=600&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1592078615290-033ee584e267?q=80&w=600&auto=format&fit=crop',
     description: 'Fully articulating mesh office task chair. Features dynamic adaptive lumbar cushioning, 3D armrests, and weight-activated tension tilt mechanics.',
     badge: 'BESTSELLER',
     isFeatured: true,
@@ -199,7 +199,7 @@ export const PRODUCTS = [
   {
     id: 'standing-desk',
     name: 'Ascent Oak Standing Desk',
-    price: 599.00,
+    price: 49990.00,
     rating: 4.8,
     reviews: 43,
     category: 'Office',
@@ -209,7 +209,7 @@ export const PRODUCTS = [
       { name: 'Natural Oak', hex: '#F3E8FF' }
     ],
     sizes: ['48x24"', '60x30"'],
-    imageUrl: 'https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?q=80&w=600&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=600&auto=format&fit=crop',
     description: 'Premium dual-motor electric standing desk with three memory height presets and anti-collision safety. Solid white-oak top with integrated wire tunnels.',
     materials: 'FSC solid white oak wooden top, dual-stage steel columns.',
     care: 'Wipe solid wood surface with damp cloth. Re-oil oak surface once every two years.'
@@ -217,7 +217,7 @@ export const PRODUCTS = [
   {
     id: 'academia-bookshelf',
     name: 'Gothic Wood Bookshelf',
-    price: 289.00,
+    price: 24990.00,
     rating: 4.7,
     reviews: 29,
     category: 'Office',
@@ -227,7 +227,7 @@ export const PRODUCTS = [
       { name: 'Walnut', hex: '#4B382A' }
     ],
     sizes: ['Standard'],
-    imageUrl: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?q=80&w=600&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1568667256549-094345857637?q=80&w=600&auto=format&fit=crop',
     description: 'Classic dark walnut stained bookshelf with solid heavy-molded crown profiles. Lends a warm historical gravity to home libraries and reading spaces.',
     materials: 'Premium solid birchwood and thick real-walnut veneer.',
     care: 'Dust shelves weekly. Do not expose to moisture. Use designated wood oils to restore shine.'
@@ -235,7 +235,7 @@ export const PRODUCTS = [
   {
     id: 'desk-organizer',
     name: 'Monolith Desk Tray',
-    price: 45.00,
+    price: 3990.00,
     rating: 4.9,
     reviews: 76,
     category: 'Office',
@@ -253,7 +253,7 @@ export const PRODUCTS = [
   {
     id: 'dining-table',
     name: 'Kanso Walnut Dining Table',
-    price: 799.00,
+    price: 67990.00,
     rating: 4.9,
     reviews: 23,
     category: 'Dining',
@@ -272,7 +272,7 @@ export const PRODUCTS = [
   {
     id: 'bar-stools',
     name: 'Hygge Leather Bar Stools',
-    price: 160.00,
+    price: 13990.00,
     rating: 4.8,
     reviews: 32,
     category: 'Dining',
@@ -282,7 +282,7 @@ export const PRODUCTS = [
       { name: 'Cognac Leather', hex: '#B45309' }
     ],
     sizes: ['Standard Counter'],
-    imageUrl: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=600&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1581428982868-e410dd047a90?q=80&w=600&auto=format&fit=crop',
     description: 'Elegantly proportioned bar stools with solid light ash wood frames and comfortable curved cognac saddle-leather seats.',
     materials: 'Vegetable-tanned saddle leather, steam-bent solid ashwood.',
     care: 'Apply neutral leather balms semi-annually. Wipe wooden frames with soft dry cloths.'
@@ -290,7 +290,7 @@ export const PRODUCTS = [
   {
     id: 'dining-chairs',
     name: 'Modena Dining Chair',
-    price: 110.00,
+    price: 9490.00,
     rating: 4.6,
     reviews: 58,
     category: 'Dining',
@@ -309,7 +309,7 @@ export const PRODUCTS = [
   {
     id: 'moss-frame',
     name: 'Living Moss Art Frame',
-    price: 95.00,
+    price: 7990.00,
     rating: 4.9,
     reviews: 87,
     category: 'Small Decor',
@@ -319,7 +319,7 @@ export const PRODUCTS = [
       { name: 'Spring Green', hex: '#1E3F20' }
     ],
     sizes: ['16x16"', '24x24"'],
-    imageUrl: 'https://images.unsplash.com/photo-1545241047-6083a3684587?q=80&w=600&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1535696582863-f8232938f375?q=80&w=600&auto=format&fit=crop',
     description: 'Stunning wall hanging featuring 100% natural, preserved forest mosses requiring zero watering, sunlight, or active gardening.',
     badge: 'NATURAL',
     isTrending: true,
@@ -329,7 +329,7 @@ export const PRODUCTS = [
   {
     id: 'stone-vase',
     name: 'Wabi-Sabi Ceramic Vase',
-    price: 65.00,
+    price: 5490.00,
     rating: 4.8,
     reviews: 104,
     category: 'Small Decor',
@@ -347,7 +347,7 @@ export const PRODUCTS = [
   {
     id: 'eclipse-mirror',
     name: 'Eclipse Brass Mirror',
-    price: 175.00,
+    price: 14990.00,
     rating: 4.7,
     reviews: 35,
     category: 'Small Decor',
@@ -365,7 +365,7 @@ export const PRODUCTS = [
   {
     id: 'zen-garden-kit',
     name: 'Serenity Sand Garden',
-    price: 49.00,
+    price: 3990.00,
     rating: 4.9,
     reviews: 41,
     category: 'Small Decor',
@@ -375,7 +375,7 @@ export const PRODUCTS = [
       { name: 'Sand White', hex: '#F8FAFC' }
     ],
     sizes: ['Standard'],
-    imageUrl: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=600&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?q=80&w=600&auto=format&fit=crop',
     description: 'Tabletop Zen sand rake kit complete with high-purity crystalline quartz sand, basalt stone stacks, and fine handcrafted bamboo rakes.',
     materials: 'Natural stone, solid oak sandbox frame, bamboo raking elements.',
     care: 'Keep sand surface dry. Brush stones occasionally using standard dust brushes.'

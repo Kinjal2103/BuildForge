@@ -178,7 +178,7 @@ export default function ProductDetails() {
             </h1>
 
             <p className="text-xl font-extrabold text-[#0b1c30] pt-1">
-              ${product.price.toFixed(2)}
+              ₹{product.price.toLocaleString('en-IN')}
             </p>
           </div>
 
@@ -281,7 +281,7 @@ export default function ProductDetails() {
             </button>
             
             <div className="flex justify-center gap-6 text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-3">
-              <p className="flex items-center gap-1.5"><Truck className="w-3.5 h-3.5 text-slate-350" /> Free Shipping &gt;$200</p>
+              <p className="flex items-center gap-1.5"><Truck className="w-3.5 h-3.5 text-slate-350" /> Free Delivery &gt;₹15,000</p>
               <p className="flex items-center gap-1.5"><RotateCcw className="w-3.5 h-3.5 text-slate-350" /> 30-Day Free Return</p>
             </div>
           </div>
@@ -367,7 +367,7 @@ export default function ProductDetails() {
                 <h4 className="font-semibold text-xs text-slate-800 group-hover:underline truncate">
                   {p.name}
                 </h4>
-                <p className="text-xs font-bold text-slate-900 mt-1">${p.price.toFixed(2)}</p>
+                <p className="text-xs font-bold text-slate-900 mt-1">₹{p.price.toLocaleString('en-IN')}</p>
               </Link>
             ))}
           </div>
