@@ -1,11 +1,10 @@
 const Product = require('../models/productModel');
 const User = require('../models/userModel');
 const CommunityBuild = require('../models/communityBuildModel');
-const PostLike = require('../models/postLikeModel');
-const Comment = require('../models/commentModel');
 const Bookmark = require('../models/bookmarkModel');
 const CloneTracking = require('../models/cloneTrackingModel');
 const { AppError, catchAsync } = require('../middleware/errorMiddleware');
+const mongoose = require('mongoose');
 
 // Helper to update user reputation score based on: (totalLikesReceived * 5) + (showcasePostsCount * 10) + (followersCount * 2)
 const updateReputationScore = async (userId) => {
@@ -354,10 +353,8 @@ exports.deleteCommunityBuild = catchAsync(async (req, res, next) => {
   // Decrement showcase posts count
   await User.findByIdAndUpdate(communityBuild.author, { $inc: { showcasePostsCount: -1 } });
   
-  // Clean up associated likes, bookmarks, and comments
-  await PostLike.deleteMany({ post: req.params.id });
+  // Clean up associated bookmarks
   await Bookmark.deleteMany({ post: req.params.id });
-  await Comment.deleteMany({ post: req.params.id });
 
   // Update reputation score of creator
   await updateReputationScore(communityBuild.author);
@@ -380,13 +377,13 @@ exports.toggleLikeCommunityBuild = catchAsync(async (req, res, next) => {
     return next(new AppError('No community build found with that ID.', 404));
   }
 
-  // Check if like already exists
-  const existingLike = await PostLike.findOne({ user: userId, post: buildId });
+  // Check if user has already liked the post
+  const likeIndex = build.likes.findIndex(id => id.toString() === userId.toString());
 
-  if (existingLike) {
+  if (likeIndex > -1) {
     // Unlike
-    await PostLike.deleteOne({ _id: existingLike._id });
-    build.likesCount = Math.max(0, build.likesCount - 1);
+    build.likes.splice(likeIndex, 1);
+    build.likesCount = build.likes.length;
     await build.save();
 
     // Decrement user stats
@@ -400,8 +397,8 @@ exports.toggleLikeCommunityBuild = catchAsync(async (req, res, next) => {
     });
   } else {
     // Like
-    await PostLike.create({ user: userId, post: buildId });
-    build.likesCount += 1;
+    build.likes.push(userId);
+    build.likesCount = build.likes.length;
     await build.save();
 
     // Increment user stats
@@ -497,32 +494,35 @@ exports.addComment = catchAsync(async (req, res, next) => {
 
   // If nested reply, check parent comment validity
   if (parentCommentId) {
-    const parentComment = await Comment.findById(parentCommentId);
-    if (!parentComment) {
+    const parentCommentExists = build.comments.some(c => c._id.toString() === parentCommentId.toString());
+    if (!parentCommentExists) {
       return next(new AppError('Parent comment does not exist.', 400));
     }
   }
 
-  const comment = await Comment.create({
-    post: buildId,
+  const commentId = new mongoose.Types.ObjectId();
+  const comment = {
+    _id: commentId,
     author: req.user._id,
     content: content.trim(),
-    parentComment: parentCommentId || null
-  });
+    parentCommentId: parentCommentId || null
+  };
 
-  // Increment commentsCount cache
-  build.commentsCount += 1;
+  build.comments.push(comment);
+  build.commentsCount = build.comments.length;
   await build.save();
 
-  // Populate author details
-  await comment.populate({
-    path: 'author',
+  // Populate author details on the newly added comment subdocument
+  await build.populate({
+    path: 'comments.author',
     select: 'name profilePicture isVerifiedBuilder'
   });
 
+  const populatedComment = build.comments.find(c => c._id.toString() === commentId.toString());
+
   res.status(201).json({
     success: true,
-    comment
+    comment: populatedComment
   });
 });
 
@@ -532,30 +532,30 @@ exports.addComment = catchAsync(async (req, res, next) => {
 exports.getComments = catchAsync(async (req, res, next) => {
   const buildId = req.params.id;
 
-  const build = await CommunityBuild.findById(buildId);
+  const build = await CommunityBuild.findById(buildId).populate({
+    path: 'comments.author',
+    select: 'name profilePicture isVerifiedBuilder'
+  });
+
   if (!build) {
     return next(new AppError('No community build found with that ID.', 404));
   }
 
-  // Find root comments (where parentComment is null)
-  const comments = await Comment.find({ post: buildId, parentComment: null })
-    .populate({
-      path: 'author',
-      select: 'name profilePicture isVerifiedBuilder'
-    })
-    .populate({
-      path: 'replies',
-      populate: {
-        path: 'author',
-        select: 'name profilePicture isVerifiedBuilder'
-      }
-    })
-    .sort({ createdAt: -1 });
+  // Build root comments and nest replies in memory
+  const rawComments = build.comments.map(c => c.toObject());
+  const rootComments = rawComments.filter(c => !c.parentCommentId);
+
+  rootComments.forEach(parent => {
+    parent.replies = rawComments.filter(c => c.parentCommentId && c.parentCommentId.toString() === parent._id.toString());
+  });
+
+  // Sort newest comments first
+  rootComments.sort((a, b) => b.createdAt - a.createdAt);
 
   res.status(200).json({
     success: true,
-    results: comments.length,
-    comments
+    results: rootComments.length,
+    comments: rootComments
   });
 });
 
@@ -563,34 +563,36 @@ exports.getComments = catchAsync(async (req, res, next) => {
  * Delete a comment
  */
 exports.deleteComment = catchAsync(async (req, res, next) => {
-  const comment = await Comment.findById(req.params.commentId);
-  if (!comment) {
+  const commentId = req.params.commentId;
+
+  const build = await CommunityBuild.findOne({ 'comments._id': commentId });
+  if (!build) {
     return next(new AppError('No comment found with that ID.', 404));
   }
 
+  const commentIndex = build.comments.findIndex(c => c._id.toString() === commentId.toString());
+  const comment = build.comments[commentIndex];
+
   // Ensure owner or admin or post author can delete it
-  const build = await CommunityBuild.findById(comment.post);
-  
   if (
     comment.author.toString() !== req.user._id.toString() &&
     req.user.role !== 'admin' &&
-    (!build || build.author.toString() !== req.user._id.toString())
+    build.author.toString() !== req.user._id.toString()
   ) {
     return next(new AppError('You do not have permission to delete this comment.', 403));
   }
 
-  // Count how many nested comments will be deleted
-  const replyCount = await Comment.countDocuments({ parentComment: comment._id });
+  // Collect target IDs (the comment itself and all replies pointing to it)
+  const idsToDelete = [commentId.toString()];
+  build.comments.forEach(c => {
+    if (c.parentCommentId && c.parentCommentId.toString() === commentId.toString()) {
+      idsToDelete.push(c._id.toString());
+    }
+  });
 
-  // Delete comment and replies
-  await Comment.findByIdAndDelete(req.params.commentId);
-  await Comment.deleteMany({ parentComment: comment._id });
-
-  // Decrement commentsCount cache on build
-  if (build) {
-    build.commentsCount = Math.max(0, build.commentsCount - (1 + replyCount));
-    await build.save();
-  }
+  build.comments = build.comments.filter(c => !idsToDelete.includes(c._id.toString()));
+  build.commentsCount = build.comments.length;
+  await build.save();
 
   res.status(200).json({
     success: true,

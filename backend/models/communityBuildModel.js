@@ -30,6 +30,39 @@ const componentSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const commentSubSchema = new mongoose.Schema(
+  {
+    _id: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: () => new mongoose.Types.ObjectId()
+    },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: [true, 'A comment must have an author.']
+    },
+    content: {
+      type: String,
+      required: [true, 'Comment content cannot be empty.'],
+      trim: true,
+      maxlength: [500, 'Comment cannot exceed 500 characters.']
+    },
+    parentCommentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null
+    },
+    likes: {
+      type: Number,
+      default: 0
+    },
+    edited: {
+      type: Boolean,
+      default: false
+    }
+  },
+  { timestamps: true }
+);
+
 const communityBuildSchema = new mongoose.Schema(
   {
     author: {
@@ -132,6 +165,13 @@ const communityBuildSchema = new mongoose.Schema(
       enum: ['public', 'private', 'followers'],
       default: 'public'
     },
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    ],
+    comments: [commentSubSchema],
 
     // Counter caches for speed optimizations
     likesCount: {
