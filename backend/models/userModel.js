@@ -45,10 +45,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
-    profileBanner: {
-      type: String,
-      default: ''
-    },
     bio: {
       type: String,
       default: ''

@@ -1,19 +1,33 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { User, LogOut, CreditCard, ShoppingBag, Settings, LayoutDashboard, Heart, Wrench } from 'lucide-react';
+import { User, LogOut, CreditCard, ShoppingBag, Settings, LayoutDashboard, Heart, Wrench, ShieldCheck, Award, Users, Star } from 'lucide-react';
 
 export default function Profile() {
   const [user, setUser] = useState({
-    name: 'GamerEnthusiast',
-    email: 'builds@buildforge.com',
-    phone: '+1 (555) 902-1248',
-    address: '128 Silicon Valley Way, San Jose, CA'
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    profilePicture: '',
+    bio: '',
+    followersCount: 0,
+    followingCount: 0,
+    showcasePostsCount: 0,
+    totalLikesReceived: 0,
+    reputationScore: 0,
+    isVerifiedBuilder: false
   });
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({ name: 'GamerEnthusiast', phone: '+1 (555) 902-1248', address: '128 Silicon Valley Way, San Jose, CA' });
+  const [editForm, setEditForm] = useState({
+    name: '',
+    phone: '',
+    address: '',
+    profilePicture: '',
+    bio: ''
+  });
   const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
 
@@ -34,7 +48,6 @@ export default function Profile() {
 
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
-      // If no token, we can still show our mock user for seamless demonstration
       if (!token) return;
 
       try {
@@ -45,11 +58,26 @@ export default function Profile() {
         const profileData = await profileRes.json();
 
         if (profileData.success && profileData.data && profileData.data.user) {
-          setUser(profileData.data.user);
+          const fetchedUser = profileData.data.user;
+          // Apply fallback mock details for any missing db fields
+          setUser({
+            ...fetchedUser,
+            profilePicture: fetchedUser.profilePicture || '',
+            bio: fetchedUser.bio || '',
+            followersCount: fetchedUser.followersCount || 0,
+            followingCount: fetchedUser.followingCount || 0,
+            showcasePostsCount: fetchedUser.showcasePostsCount || 0,
+            totalLikesReceived: fetchedUser.totalLikesReceived || 0,
+            reputationScore: fetchedUser.reputationScore || 0,
+            isVerifiedBuilder: fetchedUser.isVerifiedBuilder || false
+          });
+          
           setEditForm({
-            name: profileData.data.user.name || '',
-            phone: profileData.data.user.phone || '',
-            address: profileData.data.user.address || ''
+            name: fetchedUser.name || '',
+            phone: fetchedUser.phone || '',
+            address: fetchedUser.address || '',
+            profilePicture: fetchedUser.profilePicture || '',
+            bio: fetchedUser.bio || ''
           });
         }
 
@@ -75,14 +103,26 @@ export default function Profile() {
     navigate('/login');
   };
 
+  const handleOpenEditModal = () => {
+    setEditForm({
+      name: user.name || '',
+      phone: user.phone || '',
+      address: user.address || '',
+      profilePicture: user.profilePicture ,
+      bio: user.bio 
+    });
+    setIsEditing(true);
+    setError('');
+  };
+
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     setIsSaving(true);
     setError('');
 
     const token = localStorage.getItem('token');
-    if (!token) {
-      // Offline save
+    if (!token || token === 'mock_token_success') {
+      // Offline / Mock mode fallback save
       setUser(prev => ({ ...prev, ...editForm }));
       setIsSaving(false);
       setIsEditing(false);
@@ -101,7 +141,11 @@ export default function Profile() {
 
       const data = await res.json();
       if (data.success && data.data && data.data.user) {
-        setUser(data.data.user);
+        const updatedUser = data.data.user;
+        setUser(prev => ({
+          ...prev,
+          ...updatedUser
+        }));
         setIsEditing(false);
       } else {
         setError(data.message || 'Failed to update details.');
@@ -122,92 +166,161 @@ export default function Profile() {
   return (
     <div className="max-w-[1440px] mx-auto px-6 md:px-8 py-10 font-sans mt-8 min-h-screen text-left">
       {/* Title */}
-      <div className="mb-8 border-b border-white/5 pb-6">
+      <div className="mb-6 border-b border-white/5 pb-4">
         <span className="text-[10px] tracking-widest text-blue-400 font-bold uppercase">Member Center</span>
         <h1 className="text-3xl font-black text-white mt-1">User Profile</h1>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Side Info */}
-        <section className="lg:col-span-3 space-y-6">
-          <div className="glass-panel p-6 rounded-2xl flex flex-col items-center text-center">
-            <div className="w-20 h-20 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center text-2xl font-black mb-4">
-              {user.name.charAt(0).toUpperCase()}
+      {/* Profile Header Card */}
+      <div className="relative rounded-3xl overflow-hidden border border-white/5 bg-[#1E293B] shadow-xl mb-8 p-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10">
+          <div className="flex flex-col md:flex-row items-center md:items-end gap-4 text-center md:text-left">
+            {/* Avatar picture */}
+            <div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border border-white/10 bg-slate-950 shadow-2xl flex-shrink-0 flex items-center justify-center">
+              {user.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt={user.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center text-3xl font-black uppercase">
+                  {user.name ? user.name.charAt(0).toUpperCase() : '?'}
+                </div>
+              )}
             </div>
-            <h2 className="text-lg font-bold text-white leading-tight">{user.name}</h2>
-            <p className="text-[10px] text-slate-500 font-mono mt-1 w-full break-all">{user.email}</p>
+            {/* Profile detail text */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-center md:justify-start gap-1.5">
+                <h2 className="text-2xl font-black text-white">{user.name}</h2>
+                {user.isVerifiedBuilder && (
+                  <div className="relative group cursor-pointer" title="Verified BuildForge Custom Builder">
+                    <ShieldCheck className="w-5 h-5 text-blue-400 fill-blue-500/20" />
+                  </div>
+                )}
+              </div>
+              <p className="text-[11px] text-slate-400 font-mono">{user.email}</p>
+              <p className="text-xs text-slate-300 max-w-lg mt-2 leading-relaxed">{user.bio}</p>
+              
+              {/* Followers info */}
+              <div className="flex items-center justify-center md:justify-start gap-4 mt-3 pt-2 text-[10px] uppercase font-mono tracking-wider text-slate-500">
+                <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> <strong>{user.followersCount}</strong> Followers</span>
+                <span>•</span>
+                <span><strong>{user.followingCount}</strong> Following</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Action button row */}
+          <div className="flex gap-2 self-center md:self-end">
+            <button
+              onClick={handleOpenEditModal}
+              className="bg-[#1E293B] border border-white/10 hover:bg-white/5 text-white px-5 py-2.5 rounded-xl text-xs font-bold uppercase transition-all cursor-pointer shadow-md"
+            >
+              Edit Profile
+            </button>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white px-5 py-2.5 rounded-xl text-xs font-bold uppercase transition-all cursor-pointer flex items-center gap-1.5 shadow-md"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left Side Stats */}
+        <section className="lg:col-span-4 space-y-6">
+          {/* Showcase Stats card */}
+          <div className="glass-panel p-6 rounded-3xl space-y-4">
+            <div className="flex items-center gap-1.5 border-b border-white/5 pb-2.5">
+              <Award className="w-5 h-5 text-yellow-500" />
+              <h3 className="font-bold text-sm text-white">Community Showcase Stats</h3>
+            </div>
             
-            <div className="w-full mt-6 space-y-2">
-              <button
-                onClick={() => setIsEditing(true)}
-                className="w-full bg-[#1E293B] border border-white/5 hover:bg-white/5 text-white py-2.5 rounded-xl text-xs font-bold uppercase transition-colors cursor-pointer"
-              >
-                Edit Profile
-              </button>
-              <button
-                onClick={handleLogout}
-                className="w-full bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white py-2.5 rounded-xl text-xs font-bold uppercase transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                Sign Out
-              </button>
+            <div className="grid grid-cols-2 gap-4 text-center">
+              <div className="bg-[#0F172A] border border-white/5 p-4 rounded-xl">
+                <span className="text-[9px] text-slate-500 uppercase tracking-wider block">Reputation Score</span>
+                <div className="flex items-center justify-center gap-1 mt-1">
+                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500/20" />
+                  <span className="text-lg font-black text-white font-mono">{user.reputationScore}</span>
+                </div>
+              </div>
+
+              <div className="bg-[#0F172A] border border-white/5 p-4 rounded-xl">
+                <span className="text-[9px] text-slate-500 uppercase tracking-wider block">Showcases Posted</span>
+                <span className="text-lg font-black text-white font-mono block mt-1">{user.showcasePostsCount}</span>
+              </div>
+
+              <div className="bg-[#0F172A] border border-white/5 p-4 rounded-xl col-span-2">
+                <span className="text-[9px] text-slate-500 uppercase tracking-wider block">Total Likes Received</span>
+                <div className="flex items-center justify-center gap-1 mt-1">
+                  <Heart className="w-4 h-4 text-red-500 fill-red-500/20" />
+                  <span className="text-lg font-black text-white font-mono">{user.totalLikesReceived}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Personal details info */}
+          <div className="glass-panel p-6 rounded-3xl space-y-4">
+            <div className="flex items-center gap-1.5 border-b border-white/5 pb-2.5">
+              <User className="w-5 h-5 text-blue-400" />
+              <h3 className="font-bold text-sm text-white">Shipping Information</h3>
+            </div>
+            <div className="space-y-3 text-xs text-slate-300">
+              <div>
+                <span className="text-[9px] text-slate-500 uppercase tracking-wider block">Receiver Name</span>
+                <span className="text-slate-200 font-bold block mt-0.5">{user.name}</span>
+              </div>
+              <div>
+                <span className="text-[9px] text-slate-500 uppercase tracking-wider block">Phone Contact</span>
+                <span className="text-slate-200 font-bold block mt-0.5">{user.phone}</span>
+              </div>
+              <div>
+                <span className="text-[9px] text-slate-500 uppercase tracking-wider block">Default Address</span>
+                <span className="text-slate-200 font-semibold block mt-0.5 leading-relaxed">{user.address}</span>
+              </div>
             </div>
           </div>
         </section>
 
         {/* Right Content */}
-        <div className="lg:col-span-9 space-y-6">
+        <div className="lg:col-span-8 space-y-6">
           {error && (
-            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs font-semibold">
+            <div className="p-4 bg-red-500/10 border border-red-550/20 rounded-xl text-red-400 text-xs font-semibold">
               {error}
             </div>
           )}
 
-          {/* Stat Counters */}
+          {/* Procurement Stat Counters */}
           <section className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="glass-panel p-5 rounded-2xl border-l-4 border-blue-500">
               <span className="text-[9px] text-slate-500 uppercase tracking-wider block">Total Procurement</span>
-              <span className="text-xl font-black text-white font-mono block mt-1">${totalSpent.toFixed(2)}</span>
+              <span className="text-lg font-black text-white font-mono block mt-1">₹{totalSpent.toLocaleString('en-IN')}</span>
             </div>
             <div className="glass-panel p-5 rounded-2xl border-l-4 border-purple-500">
-              <span className="text-[9px] text-slate-500 uppercase tracking-wider block">Pending Delivery</span>
-              <span className="text-xl font-black text-white font-mono block mt-1">{pendingCount} orders</span>
+              <span className="text-[9px] text-slate-500 uppercase tracking-wider block">Pending Orders</span>
+              <span className="text-lg font-black text-white font-mono block mt-1">{pendingCount} systems</span>
             </div>
             <div className="glass-panel p-5 rounded-2xl border-l-4 border-green-500">
               <span className="text-[9px] text-slate-500 uppercase tracking-wider block">Delivered Systems</span>
-              <span className="text-xl font-black text-white font-mono block mt-1">{deliveredCount} orders</span>
-            </div>
-          </section>
-
-          {/* Personal details info */}
-          <section className="glass-panel p-6 rounded-2xl space-y-4">
-            <h3 className="font-bold text-base text-white border-b border-white/5 pb-2">Information Details</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
-              <div>
-                <span className="text-[9px] text-slate-500 uppercase tracking-wider block">Full Name</span>
-                <span className="text-slate-200 font-bold block mt-1">{user.name}</span>
-              </div>
-              <div>
-                <span className="text-[9px] text-slate-500 uppercase tracking-wider block">Phone Contact</span>
-                <span className="text-slate-200 font-bold block mt-1">{user.phone}</span>
-              </div>
-              <div className="sm:col-span-2">
-                <span className="text-[9px] text-slate-500 uppercase tracking-wider block">Address</span>
-                <span className="text-slate-200 font-bold block mt-1">{user.address}</span>
-              </div>
+              <span className="text-lg font-black text-white font-mono block mt-1">{deliveredCount} rigs</span>
             </div>
           </section>
 
           {/* Saved Builds Grid Link */}
           <section className="glass-panel p-6 rounded-2xl space-y-4">
-            <div className="flex justify-between items-center border-b border-white/5 pb-2">
-              <h3 className="font-bold text-base text-white">Your Saved Builds</h3>
+            <div className="flex justify-between items-center border-b border-white/5 pb-2.5">
+              <h3 className="font-bold text-sm text-white">Your Saved Configurations</h3>
               <Link to="/saved-builds" className="text-xs text-blue-400 hover:underline font-bold">
-                View All Saved Builds
+                View All Configurations
               </Link>
             </div>
             {savedBuilds.length === 0 ? (
-              <div className="text-center py-6 text-slate-500 text-xs">
+              <div className="text-center py-6 text-slate-550 text-xs">
                 You haven't saved any customized builds yet. Open the <Link to="/builder" className="text-blue-400 underline">Builder</Link> page to save.
               </div>
             ) : (
@@ -216,11 +329,11 @@ export default function Profile() {
                   <div key={build.id} className="bg-[#0F172A] border border-white/5 rounded-xl p-4 flex justify-between items-center text-xs">
                     <div>
                       <p className="font-bold text-white">{build.name}</p>
-                      <p className="text-[10px] text-slate-500 mt-0.5">Budget: ${build.budget.toFixed(2)} | Score: {build.compatibilityScore}%</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5">Budget: ₹{build.budget.toLocaleString('en-IN')} | Score: {build.compatibilityScore}%</p>
                     </div>
                     <Link
                       to={`/builder?clone=${build.id.startsWith('preseed') ? build.id : ''}`}
-                      className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-[10px] uppercase px-3 py-1.5 rounded-lg"
+                      className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-[10px] uppercase px-3 py-1.5 rounded-lg transition-colors"
                     >
                       Load
                     </Link>
@@ -233,7 +346,7 @@ export default function Profile() {
           {/* Orders list */}
           <section className="glass-panel rounded-2xl overflow-hidden text-xs">
             <div className="p-6 border-b border-white/5">
-              <h3 className="font-bold text-base text-white">Recent Orders</h3>
+              <h3 className="font-bold text-sm text-white">Recent Orders</h3>
             </div>
             <div className="overflow-x-auto">
               {orders.length === 0 ? (
@@ -248,7 +361,7 @@ export default function Profile() {
                       <th className="p-4 text-right">Total Amount</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5 text-slate-300 font-mono">
+                  <tbody className="divide-y divide-white/5 text-slate-350 font-mono">
                     {orders.map((o) => {
                       const orderId = o.orderId || o._id;
                       const dateStr = o.date || (o.createdAt ? new Date(o.createdAt).toLocaleDateString() : '');
@@ -282,8 +395,8 @@ export default function Profile() {
       {isEditing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsEditing(false)} />
-          <div className="relative bg-[#1E293B] border border-white/10 max-w-md w-full rounded-2xl p-6 text-left shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-4">Edit Personal Information</h3>
+          <div className="relative bg-[#1E293B] border border-white/10 max-w-md w-full rounded-2xl p-6 text-left shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold text-white mb-4 border-b border-white/5 pb-2">Edit Builder Profile</h3>
             <form onSubmit={handleEditSubmit} className="space-y-4 text-xs">
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Full Name</label>
@@ -295,6 +408,31 @@ export default function Profile() {
                   className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
                 />
               </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Bio Description</label>
+                <textarea
+                  rows="2"
+                  value={editForm.bio}
+                  onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                  className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 resize-none"
+                  placeholder="Share a short bio with other enthusiasts..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Profile Photo</label>
+                <select
+                  value={editForm.profilePicture}
+                  onChange={(e) => setEditForm({ ...editForm, profilePicture: e.target.value })}
+                  className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
+                >
+                  <option value="https://i.pinimg.com/736x/54/a2/0f/54a20f57f4a5dc18cf1f64ac339d0b3f.jpg">Casual Techie</option>
+                  <option value="https://avatarfiles.alphacoders.com/334/334998.png">Cyberpunk Girl</option>
+                  <option value="https://images.media.io/ai-effects/neon-wolf-gamer-pfp.png">Abstract Gamer</option>
+                </select>
+              </div>
+
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Phone Number</label>
                 <input
@@ -305,15 +443,17 @@ export default function Profile() {
                   className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
                 />
               </div>
+
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Shipping Address</label>
                 <textarea
                   required
                   value={editForm.address}
                   onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-                  className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 min-h-[80px]"
+                  className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 min-h-[60px] resize-none"
                 />
               </div>
+
               <div className="pt-2 flex gap-3">
                 <button
                   type="button"

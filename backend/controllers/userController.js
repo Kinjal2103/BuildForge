@@ -1,7 +1,40 @@
 const User = require('../models/userModel');
+const CommunityBuild = require('../models/communityBuildModel');
 const { catchAsync } = require('../middleware/errorMiddleware');
 
+// Helper to dynamically calculate and sync user showcase stats
+const syncUserStats = async (userId, userDoc) => {
+  const showcasePostsCount = await CommunityBuild.countDocuments({
+    author: userId,
+    status: 'published'
+  });
+
+  const likeData = await CommunityBuild.aggregate([
+    { $match: { author: userId } },
+    { $group: { _id: null, totalLikes: { $sum: '$likesCount' } } }
+  ]);
+  const totalLikesReceived = likeData.length > 0 ? likeData[0].totalLikes : 0;
+
+  const followersCount = userDoc.followersCount || 0;
+  const reputationScore = (totalLikesReceived * 5) + (showcasePostsCount * 10) + (followersCount * 2);
+
+  // Sync back to database
+  await User.findByIdAndUpdate(userId, {
+    showcasePostsCount,
+    totalLikesReceived,
+    reputationScore
+  });
+
+  return {
+    showcasePostsCount,
+    totalLikesReceived,
+    reputationScore
+  };
+};
+
 exports.getProfile = catchAsync(async (req, res, next) => {
+  const stats = await syncUserStats(req.user._id, req.user);
+
   res.status(200).json({
     success: true,
     data: {
@@ -12,6 +45,14 @@ exports.getProfile = catchAsync(async (req, res, next) => {
         role: req.user.role,
         phone: req.user.phone || '',
         address: req.user.address || '',
+        profilePicture: req.user.profilePicture || '',
+        bio: req.user.bio || '',
+        followersCount: req.user.followersCount || 0,
+        followingCount: req.user.followingCount || 0,
+        showcasePostsCount: stats.showcasePostsCount,
+        totalLikesReceived: stats.totalLikesReceived,
+        reputationScore: stats.reputationScore,
+        isVerifiedBuilder: req.user.isVerifiedBuilder || false,
         createdAt: req.user.createdAt
       }
     }
@@ -19,13 +60,15 @@ exports.getProfile = catchAsync(async (req, res, next) => {
 });
 
 exports.updateProfile = catchAsync(async (req, res, next) => {
-  const { name, phone, address } = req.body;
+  const { name, phone, address, profilePicture, bio } = req.body;
 
   const updatedUser = await User.findByIdAndUpdate(
     req.user._id,
-    { name, phone, address },
+    { name, phone, address, profilePicture, bio },
     { new: true, runValidators: true }
   );
+
+  const stats = await syncUserStats(req.user._id, updatedUser);
 
   res.status(200).json({
     success: true,
@@ -37,6 +80,14 @@ exports.updateProfile = catchAsync(async (req, res, next) => {
         role: updatedUser.role,
         phone: updatedUser.phone || '',
         address: updatedUser.address || '',
+        profilePicture: updatedUser.profilePicture || '',
+        bio: updatedUser.bio || '',
+        followersCount: updatedUser.followersCount || 0,
+        followingCount: updatedUser.followingCount || 0,
+        showcasePostsCount: stats.showcasePostsCount,
+        totalLikesReceived: stats.totalLikesReceived,
+        reputationScore: stats.reputationScore,
+        isVerifiedBuilder: updatedUser.isVerifiedBuilder || false,
         createdAt: updatedUser.createdAt
       }
     }

@@ -543,10 +543,10 @@ export default function Community() {
                       onChange={(e) => setFormImage(e.target.value)}
                       className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-blue-500"
                     >
-                      <option value="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?q=80&w=600&auto=format&fit=crop">Obsidian Stealth (Dark)</option>
-                      <option value="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop">Stealth AMD (AMD Theme)</option>
-                      <option value="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=600&auto=format&fit=crop">Cyberpunk Neon (RGB)</option>
-                      <option value="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=600&auto=format&fit=crop">Frozen Blizzard (White/Ice)</option>
+                      <option value="https://cdn.leonardo.ai/users/b4efb42a-e7ed-47a3-b695-e6df11a1b1bc/generations/46d56a86-a83a-47ec-ac5a-ba35d0b6bd31/Leonardo_Kino_XL_A_hyperrealistic_fullbody_shot_of_a_hightech_1.jpg">Obsidian Stealth (Dark)</option>
+                      <option value="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKKyKRajpEm6RBRHQYFCXVd9pkspbGm6_CUJpE5Rgq0bVQvd3qHNkgPGU&s=10">Stealth AMD (AMD Theme)</option>
+                      <option value="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbY_HPNOdzt6nLL4M3PDJ65sAF-WYsFs-hQZTQWZg9JI0teGqjwM3srOw&s=10">Cyberpunk Neon (RGB)</option>
+                      <option value="https://img.magnific.com/free-vector/night-landscape-with-lake-mountains-trees-coast-vector-cartoon-illustration-nature-scene-with-coniferous-forest-river-shore-rocks-moon-stars-dark-sky_107791-8253.jpg?semt=ais_hybrid&w=740&q=80">Frozen Blizzard (White/Ice)</option>
                     </select>
                   </div>
                 </div>
