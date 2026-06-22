@@ -129,6 +129,7 @@ export default function Home() {
   const { quickAdd } = useCart();
   const trendingCarouselRef = useRef(null);
   const [products, setProducts] = useState(PRODUCTS);
+  const [showcaseBuilds, setShowcaseBuilds] = useState(COMMUNITY_BUILDS);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -146,8 +147,66 @@ export default function Home() {
         console.warn('Backend offline or error fetching products, using local fallback.');
       }
     };
+
+    const fetchCommunityBuilds = async () => {
+      try {
+        const res = await fetch('/api/products/community-builds');
+        const data = await res.json();
+        if (data.success && data.communityBuilds && data.communityBuilds.length > 0) {
+          const mapped = data.communityBuilds.map(b => ({
+            ...b,
+            id: b.id || b._id
+          }));
+          setShowcaseBuilds(mapped.slice(0, 4));
+        }
+      } catch (err) {
+        console.warn('Backend offline or error fetching community builds, using local fallback.');
+      }
+    };
+
     fetchProducts();
+    fetchCommunityBuilds();
   }, []);
+
+  const handleLike = async (id) => {
+    const token = localStorage.getItem('token');
+    if (token && token !== 'mock_token_success' && !id.startsWith('build-')) {
+      try {
+        const res = await fetch(`/api/community-builds/${id}/like`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const data = await res.json();
+        if (data.success) {
+          setShowcaseBuilds(prev =>
+            prev.map(post => post.id === id ? { ...post, likes: data.likesCount } : post)
+          );
+          return;
+        }
+      } catch (err) {
+        console.error('Error toggling like:', err);
+      }
+    }
+
+    setShowcaseBuilds(prev =>
+      prev.map(post => {
+        if (post.id === id) {
+          const likedKey = `liked_${id}`;
+          const isLiked = localStorage.getItem(likedKey);
+          if (isLiked) {
+            localStorage.removeItem(likedKey);
+            return { ...post, likes: post.likes - 1 };
+          } else {
+            localStorage.setItem(likedKey, 'true');
+            return { ...post, likes: post.likes + 1 };
+          }
+        }
+        return post;
+      })
+    );
+  };
 
   // Extract categoric counts
   const categoriesList = [
@@ -529,7 +588,7 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {COMMUNITY_BUILDS.map((build) => (
+          {showcaseBuilds.map((build) => (
             <div
               key={build.id}
               className="glass-panel rounded-3xl overflow-hidden flex flex-col lg:flex-row hover:border-blue-500/30 transition-all duration-300"
@@ -566,10 +625,17 @@ export default function Home() {
 
                 <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-xs text-slate-400">
                   <div className="flex items-center gap-4">
-                    <span className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer">
-                      <Heart className="w-4 h-4 text-red-500 fill-red-500" /> {build.likes}
-                    </span>
-                    <span>
+                    <button
+                      onClick={() => handleLike(build.id)}
+                      className={`flex items-center gap-1 transition-colors cursor-pointer ${
+                        localStorage.getItem(`liked_${build.id}`) ? 'text-red-500 font-semibold' : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <Heart className={`w-4 h-4 transition-all ${
+                        localStorage.getItem(`liked_${build.id}`) ? 'text-red-500 fill-red-500' : 'text-slate-450 fill-none'
+                      }`} /> {build.likes}
+                    </button>
+                    <span className="text-slate-450">
                       💬 {build.comments}
                     </span>
                   </div>

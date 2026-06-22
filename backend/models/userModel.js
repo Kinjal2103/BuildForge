@@ -40,6 +40,42 @@ const userSchema = new mongoose.Schema(
     address: {
       type: String,
       trim: true
+    },
+    profilePicture: {
+      type: String,
+      default: ''
+    },
+    profileBanner: {
+      type: String,
+      default: ''
+    },
+    bio: {
+      type: String,
+      default: ''
+    },
+    followersCount: {
+      type: Number,
+      default: 0
+    },
+    followingCount: {
+      type: Number,
+      default: 0
+    },
+    showcasePostsCount: {
+      type: Number,
+      default: 0
+    },
+    totalLikesReceived: {
+      type: Number,
+      default: 0
+    },
+    reputationScore: {
+      type: Number,
+      default: 0
+    },
+    isVerifiedBuilder: {
+      type: Boolean,
+      default: false
     }
   },
   {

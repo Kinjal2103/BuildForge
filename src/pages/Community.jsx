@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { COMMUNITY_BUILDS, PRODUCTS } from '../data/hardwareData';
-import { Heart, MessageSquare, Bookmark, Share2, Wrench, X, User } from 'lucide-react';
+import { Heart, MessageSquare, Bookmark, Share2, Wrench, X, User, PlusCircle, AlertCircle, Sparkles } from 'lucide-react';
 
 export default function Community() {
   const navigate = useNavigate();
@@ -9,6 +9,19 @@ export default function Community() {
   const [productsList, setProductsList] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [commentInput, setCommentInput] = useState('');
+  
+  // Showcase Share Form States
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [savedBuilds, setSavedBuilds] = useState([]);
+  const [selectedBuildId, setSelectedBuildId] = useState('');
+  const [formName, setFormName] = useState('');
+  const [formDesc, setFormDesc] = useState('');
+  const [formPurpose, setFormPurpose] = useState('Gaming');
+  const [formImage, setFormImage] = useState('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?q=80&w=600&auto=format&fit=crop');
+  const [formTags, setFormTags] = useState('');
+  const [formError, setFormError] = useState('');
+  const [formSuccess, setFormSuccess] = useState(false);
+
   const [commentsMap, setCommentsMap] = useState({
     'build-obsidian': [
       { user: 'RigMaster', text: 'This cable management is absolutely perfect. What custom combs did you use?' },
@@ -56,27 +69,70 @@ export default function Community() {
     fetchProducts();
   }, []);
 
-  const handleLike = (id) => {
-    setPosts(prev =>
-      prev.map(post => {
-        if (post.id === id) {
-          const likedKey = `liked_${id}`;
-          const isLiked = localStorage.getItem(likedKey);
-          if (isLiked) {
-            localStorage.removeItem(likedKey);
-            return { ...post, likes: post.likes - 1 };
-          } else {
-            localStorage.setItem(likedKey, 'true');
-            return { ...post, likes: post.likes + 1 };
+  const handleLike = async (id) => {
+    const likedKey = `liked_${id}`;
+    const token = localStorage.getItem('token');
+    
+    if (token && token !== 'mock_token_success') {
+      try {
+        const res = await fetch(`/api/community-builds/${id}/like`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
           }
+        });
+        const data = await res.json();
+        if (data.success) {
+          if (data.liked) {
+            localStorage.setItem(likedKey, 'true');
+          } else {
+            localStorage.removeItem(likedKey);
+          }
+          setPosts(prev =>
+            prev.map(post => post.id === id ? { ...post, likes: data.likesCount } : post)
+          );
+          return;
         }
-        return post;
-      })
-    );
+      } catch (err) {
+        console.error('Error toggling like:', err);
+      }
+    }
+
+    // Local state fallback
+    const isLiked = localStorage.getItem(likedKey);
+    if (isLiked) {
+      localStorage.removeItem(likedKey);
+      setPosts(prev =>
+        prev.map(post => post.id === id ? { ...post, likes: post.likes - 1 } : post)
+      );
+    } else {
+      localStorage.setItem(likedKey, 'true');
+      setPosts(prev =>
+        prev.map(post => post.id === id ? { ...post, likes: post.likes + 1 } : post)
+      );
+    }
   };
 
-  const handleClone = (specs) => {
+  const handleClone = async (postItem) => {
+    const token = localStorage.getItem('token');
+    
+    // Trace clone count on database if logged in
+    if (token && token !== 'mock_token_success') {
+      try {
+        await fetch(`/api/community-builds/${postItem.id}/clone`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      } catch (e) {
+        console.error('Failed to log clone action:', e);
+      }
+    }
+
     const listToSearch = productsList.length > 0 ? productsList : PRODUCTS;
+    const specs = postItem.specs;
+    
     const mappedBuild = {
       cpu: listToSearch.find(p => p.name === specs.cpu) || null,
       gpu: listToSearch.find(p => p.name === specs.gpu) || null,
@@ -87,18 +143,68 @@ export default function Community() {
       case: listToSearch.find(p => p.name === specs.case) || null,
       cooler: listToSearch.find(p => p.name === specs.cooler) || null
     };
+
     localStorage.setItem('forge_current_build', JSON.stringify(mappedBuild));
     navigate('/builder');
   };
 
-  const openComments = (post) => {
+  const openComments = async (post) => {
     setSelectedPost(post);
+    try {
+      const res = await fetch(`/api/community-builds/${post.id}/comments`);
+      const data = await res.json();
+      if (data.success && data.comments) {
+        const mappedComments = data.comments.map(c => ({
+          user: c.author?.name || c.usernameSnapshot || 'Builder',
+          text: c.content
+        }));
+        setCommentsMap(prev => ({
+          ...prev,
+          [post.id]: mappedComments
+        }));
+      }
+    } catch (err) {
+      console.warn('Could not load comments from API, using local memory comments.');
+    }
   };
 
-  const handlePostComment = (e) => {
+  const handlePostComment = async (e) => {
     e.preventDefault();
     if (!commentInput.trim()) return;
 
+    const token = localStorage.getItem('token');
+    if (token && token !== 'mock_token_success') {
+      try {
+        const res = await fetch(`/api/community-builds/${selectedPost.id}/comments`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ content: commentInput.trim() })
+        });
+        const data = await res.json();
+        if (data.success && data.comment) {
+          const newComment = {
+            user: data.comment.author?.name || 'You',
+            text: data.comment.content
+          };
+          setCommentsMap(prev => ({
+            ...prev,
+            [selectedPost.id]: [...(prev[selectedPost.id] || []), newComment]
+          }));
+          setPosts(prev =>
+            prev.map(post => post.id === selectedPost.id ? { ...post, comments: post.comments + 1 } : post)
+          );
+          setCommentInput('');
+          return;
+        }
+      } catch (err) {
+        console.error('Error posting comment:', err);
+      }
+    }
+
+    // Local fallback
     const newComment = {
       user: 'You',
       text: commentInput.trim()
@@ -109,7 +215,6 @@ export default function Community() {
       [selectedPost.id]: [...(prev[selectedPost.id] || []), newComment]
     }));
 
-    // Update comment count on post card
     setPosts(prev =>
       prev.map(post =>
         post.id === selectedPost.id ? { ...post, comments: post.comments + 1 } : post
@@ -119,13 +224,130 @@ export default function Community() {
     setCommentInput('');
   };
 
+  const handleOpenShareModal = () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Please log in first to share your PC build with the community!');
+      navigate('/login');
+      return;
+    }
+
+    // Load saved builds from local storage
+    const stored = localStorage.getItem('forge_saved_builds');
+    const parsed = stored ? JSON.parse(stored) : [];
+    
+    // Filter builds that have all 8 slots selected
+    const completeBuilds = parsed.filter(b => {
+      const raw = b.rawBuild;
+      return raw && raw.cpu && raw.gpu && raw.motherboard && raw.ram && raw.ssd && raw.psu && raw.case && raw.cooler;
+    });
+
+    setSavedBuilds(completeBuilds);
+    setShowShareModal(true);
+    setFormError('');
+    setFormSuccess(false);
+  };
+
+  const handleSubmitShareBuild = async (e) => {
+    e.preventDefault();
+    setFormError('');
+
+    if (!selectedBuildId) {
+      setFormError('Please select a saved PC build configuration.');
+      return;
+    }
+
+    if (!formName.trim()) {
+      setFormError('Please enter a name for your build post.');
+      return;
+    }
+
+    if (!formDesc.trim()) {
+      setFormError('Please enter a description for your build.');
+      return;
+    }
+
+    const selectedBuild = savedBuilds.find(b => b.id === selectedBuildId);
+    if (!selectedBuild) {
+      setFormError('Selected build configuration not found.');
+      return;
+    }
+
+    // Map component objects to database product IDs
+    const raw = selectedBuild.rawBuild;
+    const specsPayload = {
+      cpu: raw.cpu.id || raw.cpu._id,
+      gpu: raw.gpu.id || raw.gpu._id,
+      motherboard: raw.motherboard.id || raw.motherboard._id,
+      ram: raw.ram.id || raw.ram._id,
+      storage: raw.ssd.id || raw.ssd._id,
+      cooler: raw.cooler.id || raw.cooler._id,
+      psu: raw.psu.id || raw.psu._id,
+      case: raw.case.id || raw.case._id
+    };
+
+    const token = localStorage.getItem('token');
+    
+    try {
+      const res = await fetch('/api/community-builds', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          buildName: formName.trim(),
+          buildDescription: formDesc.trim(),
+          buildPurpose: formPurpose,
+          coverImage: formImage,
+          tags: formTags.split(',').map(t => t.trim()).filter(t => t.length > 0),
+          specs: specsPayload
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Failed to publish post.');
+      }
+
+      setFormSuccess(true);
+      
+      // Map returned build and add to posts listing
+      const newPost = {
+        ...data.communityBuild,
+        id: data.communityBuild.id || data.communityBuild._id
+      };
+      setPosts(prev => [newPost, ...prev]);
+
+      setTimeout(() => {
+        setShowShareModal(false);
+        setFormName('');
+        setFormDesc('');
+        setSelectedBuildId('');
+        setFormTags('');
+      }, 1500);
+
+    } catch (err) {
+      setFormError(err.message || 'An error occurred while publishing your post.');
+    }
+  };
+
   return (
     <div className="max-w-[1440px] mx-auto px-6 md:px-8 py-10 font-sans mt-8 min-h-screen">
-      {/* Title */}
-      <div className="mb-8 border-b border-white/5 pb-6 text-left">
-        <span className="text-[10px] tracking-widest text-blue-400 font-bold uppercase">Enthusiasts Arena</span>
-        <h1 className="text-3xl font-black text-white mt-1">Community Showcase</h1>
-        <p className="text-slate-400 text-xs mt-2">Get inspired by builds curated by gamers, developers, and hardware customizers worldwide.</p>
+      {/* Title & Action */}
+      <div className="mb-8 border-b border-white/5 pb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 text-left">
+        <div>
+          <span className="text-[10px] tracking-widest text-blue-400 font-bold uppercase">Enthusiasts Arena</span>
+          <h1 className="text-3xl font-black text-white mt-1">Community Showcase</h1>
+          <p className="text-slate-400 text-xs mt-2">Get inspired by builds curated by gamers, developers, and hardware customizers worldwide.</p>
+        </div>
+        <button
+          onClick={handleOpenShareModal}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs uppercase px-5 py-3 rounded-xl cursor-pointer transition-all flex items-center gap-1.5 self-start sm:self-auto shadow-lg shadow-blue-550/20 hover:scale-102"
+        >
+          <PlusCircle className="w-4 h-4" />
+          Share Your Build
+        </button>
       </div>
 
       {/* Grid List */}
@@ -151,7 +373,7 @@ export default function Community() {
               </div>
 
               <div className="absolute bottom-4 right-4 bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-xs font-bold border border-blue-500/25">
-                Est: ₹{post.budget.toLocaleString('en-IN')}
+                Est: ₹{post.budget ? post.budget.toLocaleString('en-IN') : '0'}
               </div>
             </div>
 
@@ -159,10 +381,10 @@ export default function Community() {
             <div className="p-6 flex-grow flex flex-col justify-between text-left">
               <div className="space-y-2 text-xs text-slate-400">
                 <h4 className="text-[9px] uppercase tracking-wider font-bold text-slate-500 mb-1">Configuration Specs</h4>
-                <p className="truncate">CPU: <strong className="text-slate-200">{post.specs.cpu}</strong></p>
-                <p className="truncate">GPU: <strong className="text-slate-200">{post.specs.gpu}</strong></p>
-                <p className="truncate">Motherboard: <strong className="text-slate-200">{post.specs.motherboard}</strong></p>
-                <p className="truncate">Case: <strong className="text-slate-200">{post.specs.case}</strong></p>
+                <p className="truncate">CPU: <strong className="text-slate-200">{post.specs?.cpu}</strong></p>
+                <p className="truncate">GPU: <strong className="text-slate-200">{post.specs?.gpu}</strong></p>
+                <p className="truncate">Motherboard: <strong className="text-slate-200">{post.specs?.motherboard}</strong></p>
+                <p className="truncate">Case: <strong className="text-slate-200">{post.specs?.case}</strong></p>
               </div>
 
               {/* Action row */}
@@ -170,9 +392,17 @@ export default function Community() {
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => handleLike(post.id)}
-                    className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer"
+                    className={`flex items-center gap-1.5 transition-colors cursor-pointer ${
+                      localStorage.getItem(`liked_${post.id}`) ? 'text-red-500 font-semibold' : 'text-slate-400 hover:text-white'
+                    }`}
                   >
-                    <Heart className="w-4 h-4 text-red-500 fill-red-500" />
+                    <Heart
+                      className={`w-4 h-4 transition-all ${
+                        localStorage.getItem(`liked_${post.id}`)
+                          ? 'text-red-500 fill-red-500'
+                          : 'text-slate-400 fill-none'
+                      }`}
+                    />
                     <span>{post.likes}</span>
                   </button>
                   <button
@@ -186,8 +416,8 @@ export default function Community() {
 
                 <div className="flex gap-2">
                   <button
-                    onClick={() => handleClone(post.specs)}
-                    className="bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white px-4 py-2 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center gap-1"
+                    onClick={() => handleClone(post)}
+                    className="bg-blue-500/10 hover:bg-blue-505 text-blue-400 hover:text-white px-4 py-2 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center gap-1"
                   >
                     <Wrench className="w-3.5 h-3.5" />
                     Clone Rig
@@ -199,6 +429,163 @@ export default function Community() {
         ))}
       </div>
 
+      {/* Share Build Modal Dialog */}
+      {showShareModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowShareModal(false)} />
+          <div className="relative bg-[#1E293B] border border-white/10 max-w-xl w-full rounded-2xl p-6 text-left shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-white/5 pb-3 mb-4">
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="w-5 h-5 text-blue-400" />
+                <h3 className="font-bold text-white text-base">Share Your Hardware Masterpiece</h3>
+              </div>
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="p-1.5 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {formSuccess ? (
+              <div className="py-8 text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mx-auto text-xl font-bold">✓</div>
+                <h4 className="font-bold text-white text-sm">Build Shared Successfully!</h4>
+                <p className="text-xs text-slate-400">Your configuration is now listed on the Community Showcase page.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmitShareBuild} className="space-y-4 text-xs">
+                {formError && (
+                  <div className="bg-red-500/10 border border-red-550/20 text-red-400 p-3 rounded-xl flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    <span>{formError}</span>
+                  </div>
+                )}
+
+                {/* 1. Selection of Saved Configuration */}
+                <div className="space-y-1.5">
+                  <label className="block text-slate-300 font-bold">Select Saved PC Configuration</label>
+                  {savedBuilds.length === 0 ? (
+                    <div className="p-3 bg-[#0F172A] border border-white/5 rounded-xl text-slate-400 text-center">
+                      No complete PC configuration found in profile. <br />
+                      <span className="text-[10px] text-blue-400">Ensure all 8 components are selected in the PC Builder and click "Save Configuration" first.</span>
+                    </div>
+                  ) : (
+                    <select
+                      value={selectedBuildId}
+                      onChange={(e) => {
+                        setSelectedBuildId(e.target.value);
+                        const b = savedBuilds.find(x => x.id === e.target.value);
+                        if (b) setFormName(b.name);
+                      }}
+                      className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="">-- Choose a configuration --</option>
+                      {savedBuilds.map(b => (
+                        <option key={b.id} value={b.id}>
+                          {b.name} (₹{b.budget.toLocaleString('en-IN')})
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                {/* 2. Build Name */}
+                <div className="space-y-1.5">
+                  <label className="block text-slate-300 font-bold">Showcase Build Name</label>
+                  <input
+                    type="text"
+                    value={formName}
+                    onChange={(e) => setFormName(e.target.value)}
+                    placeholder="e.g. Project Whiteout, RGB Storm..."
+                    className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                {/* 3. Description */}
+                <div className="space-y-1.5">
+                  <label className="block text-slate-300 font-bold">Description / Motivation</label>
+                  <textarea
+                    rows="3"
+                    value={formDesc}
+                    onChange={(e) => setFormDesc(e.target.value)}
+                    placeholder="Tell the community about your aesthetic theme, cooling setup, cable management choices, or target framerates..."
+                    className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 resize-none"
+                  />
+                </div>
+
+                {/* 4. Purpose & Cover preset */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="block text-slate-300 font-bold">Primary Build Purpose</label>
+                    <select
+                      value={formPurpose}
+                      onChange={(e) => setFormPurpose(e.target.value)}
+                      className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="Gaming">Gaming</option>
+                      <option value="Streaming">Streaming</option>
+                      <option value="Competitive Esports">Competitive Esports</option>
+                      <option value="Content Creation">Content Creation</option>
+                      <option value="Video Editing">Video Editing</option>
+                      <option value="AI / ML">AI / ML</option>
+                      <option value="Programming">Programming</option>
+                      <option value="Budget Build">Budget Build</option>
+                      <option value="Workstation">Workstation</option>
+                      <option value="Home Server">Home Server</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-slate-300 font-bold">Showcase Banner Style</label>
+                    <select
+                      value={formImage}
+                      onChange={(e) => setFormImage(e.target.value)}
+                      className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?q=80&w=600&auto=format&fit=crop">Obsidian Stealth (Dark)</option>
+                      <option value="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop">Stealth AMD (AMD Theme)</option>
+                      <option value="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=600&auto=format&fit=crop">Cyberpunk Neon (RGB)</option>
+                      <option value="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?q=80&w=600&auto=format&fit=crop">Frozen Blizzard (White/Ice)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* 5. Tags */}
+                <div className="space-y-1.5">
+                  <label className="block text-slate-300 font-bold">Aesthetic Tags (comma-separated)</label>
+                  <input
+                    type="text"
+                    value={formTags}
+                    onChange={(e) => setFormTags(e.target.value)}
+                    placeholder="e.g. RGB, Watercooled, Minimalist, WhiteBuild"
+                    className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                {/* 6. Actions */}
+                <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
+                  <button
+                    type="button"
+                    onClick={() => setShowShareModal(false)}
+                    className="bg-white/5 hover:bg-white/10 text-slate-350 font-bold px-4 py-2 rounded-xl cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={savedBuilds.length === 0}
+                    className="bg-blue-500 hover:bg-blue-600 disabled:bg-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold px-6 py-2 rounded-xl cursor-pointer transition-all"
+                  >
+                    Publish Post
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Comments Drawer / Modal */}
       {selectedPost && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -207,11 +594,11 @@ export default function Community() {
             <div className="flex justify-between items-center border-b border-white/5 pb-3 mb-4">
               <div>
                 <h3 className="font-bold text-white text-base">Rig Comments</h3>
-                <p className="text-[10px] text-slate-500 mt-0.5">@{selectedPost.creator}'s {selectedPost.name}</p>
+                <p className="text-[10px] text-slate-550 mt-0.5">@{selectedPost.creator}'s {selectedPost.name}</p>
               </div>
               <button
                 onClick={() => setSelectedPost(null)}
-                className="p-1.5 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white cursor-pointer"
+                className="p-1.5 hover:bg-white/5 rounded-lg text-slate-450 hover:text-white cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -241,7 +628,7 @@ export default function Community() {
                 value={commentInput}
                 onChange={(e) => setCommentInput(e.target.value)}
                 placeholder="Post a comment..."
-                className="flex-1 bg-[#0F172A] border border-white/10 rounded-xl px-4 py-2 text-xs text-white placeholder-slate-550 focus:outline-none focus:border-blue-500"
+                className="flex-1 bg-[#0F172A] border border-white/10 rounded-xl px-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
               />
               <button
                 type="submit"

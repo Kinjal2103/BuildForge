@@ -135,12 +135,43 @@ const seedDatabase = async () => {
     await Product.deleteMany();
     console.log('Cleared existing products...');
 
-    const seededProducts = products.map((p) => ({
-      ...p,
-      _id: p.id,
-      specs: normalizeSpecs(p),
-      stock: p.stock !== undefined ? p.stock : 15
-    }));
+    const seededProducts = products.map((p) => {
+      const cleanProd = { ...p };
+
+      // Normalize _id
+      if (cleanProd._id && typeof cleanProd._id === 'object') {
+        if (cleanProd._id.$oid) {
+          cleanProd._id = cleanProd._id.$oid;
+        } else {
+          cleanProd._id = cleanProd._id.id || String(cleanProd._id);
+        }
+      } else if (!cleanProd._id && cleanProd.id) {
+        cleanProd._id = cleanProd.id;
+      }
+
+      // Normalize timestamps if they are MongoDB JSON objects
+      if (cleanProd.createdAt) {
+        if (typeof cleanProd.createdAt === 'object' && cleanProd.createdAt.$date) {
+          cleanProd.createdAt = new Date(cleanProd.createdAt.$date);
+        } else {
+          cleanProd.createdAt = new Date(cleanProd.createdAt);
+        }
+      }
+      
+      if (cleanProd.updatedAt) {
+        if (typeof cleanProd.updatedAt === 'object' && cleanProd.updatedAt.$date) {
+          cleanProd.updatedAt = new Date(cleanProd.updatedAt.$date);
+        } else {
+          cleanProd.updatedAt = new Date(cleanProd.updatedAt);
+        }
+      }
+
+      return {
+        ...cleanProd,
+        specs: normalizeSpecs(cleanProd),
+        stock: cleanProd.stock !== undefined ? cleanProd.stock : 15
+      };
+    });
 
     await Product.insertMany(seededProducts);
     console.log('Seeded database successfully with mock products!');

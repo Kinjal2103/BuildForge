@@ -11,6 +11,7 @@ const authRouter = require('./routes/authRoutes');
 const userRouter = require('./routes/userRoutes');
 const orderRouter = require('./routes/orderRoutes');
 const chatRouter = require('./routes/chatRoutes');
+const communityBuildRouter = require('./routes/communityBuildRoutes');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 const app = express();
@@ -43,6 +44,9 @@ app.use('/api/orders', orderRouter);
 
 // Mount Chat Routes Group
 app.use('/api/chat', chatRouter);
+
+// Mount Community Build Showcase Routes Group
+app.use('/api/community-builds', communityBuildRouter);
 
 // Undefined Route Handler (triggers 404 AppError)
 app.use(notFound);

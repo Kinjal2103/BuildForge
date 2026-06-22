@@ -1,4 +1,5 @@
 const Product = require('../models/productModel');
+const CommunityBuild = require('../models/communityBuildModel');
 const APIFeatures = require('../utils/apiFeatures');
 const { CATEGORIES, GAMES, COMMUNITY_BUILDS } = require('../data/referenceData');
 const { AppError, catchAsync } = require('../middleware/errorMiddleware');
@@ -95,8 +96,15 @@ exports.getGames = catchAsync(async (req, res, next) => {
 });
 
 exports.getCommunityBuilds = catchAsync(async (req, res, next) => {
+  const builds = await CommunityBuild.find({ status: 'published', visibility: 'public' })
+    .populate({
+      path: 'author',
+      select: 'name email profilePicture'
+    })
+    .sort({ createdAt: -1 });
+
   res.status(200).json({
     success: true,
-    communityBuilds: COMMUNITY_BUILDS
+    communityBuilds: builds
   });
 });
