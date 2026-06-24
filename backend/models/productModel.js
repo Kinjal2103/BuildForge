@@ -127,6 +127,14 @@ productSchema.index({ category: 1 });
 productSchema.index({ price: 1 });
 productSchema.index({ rating: -1 });
 productSchema.index({ isFeatured: -1 });
+productSchema.index({ brand: 1 });
+productSchema.index({ 'specs.Socket Type': 1 });
+productSchema.index({ 'specs.Type': 1 });
+productSchema.index({ 'specs.RAM Slots': 1 });
+productSchema.index({ 'specs.RAM Support': 1 });
+productSchema.index({ 'specs.VRAM': 1 });
+productSchema.index({ 'specs.Capacity': 1 });
+
 
 productSchema.virtual('isOutOfStock').get(function() {
   return this.stock <= 0;
