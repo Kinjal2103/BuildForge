@@ -3,6 +3,19 @@ import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
 
+// Global fetch interceptor to prepend VITE_API_URL in production
+const API_URL = import.meta.env.VITE_API_URL;
+if (API_URL) {
+  const originalFetch = window.fetch;
+  window.fetch = async function (resource, options) {
+    let url = resource;
+    if (typeof resource === 'string' && resource.startsWith('/api')) {
+      url = `${API_URL.replace(/\/$/, '')}${resource}`;
+    }
+    return originalFetch(url, options);
+  };
+}
+
 // Clear legacy cached mock data in browser localStorage
 try {
   // Migrate legacy shared 'forge_saved_builds' to user-scoped slots
