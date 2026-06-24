@@ -120,9 +120,4 @@ cypress/screenshots/
 cypress/downloads/
 
 # Local Netlify files
-.netlify/
-
-backend/data/
-src/data
-backend/tests
-seeder.js
+# Keep essential project data folders and tests tracked for deployment
